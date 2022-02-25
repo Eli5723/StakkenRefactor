@@ -1,3 +1,5 @@
+
+![Logo](https://github.com/Eli5723/StakkenRefactor/blob/master/release/resources/textures/logo.png?raw=true)
 # Stakken: A Cultris 2 Spritual Succesor
 
 ## What is it?
