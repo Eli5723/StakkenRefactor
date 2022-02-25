@@ -9,6 +9,7 @@ Stakken is a spiritual succesor to Cultris 2, a fast paced multiplayer tetris ga
 Run the following commands:
 
 ```
+./vcpkg/bootstrap-vcpkg.sh
 ./vcpkg/vcpkg install
 mkdir build
 cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake
@@ -19,7 +20,8 @@ cmake --build
 Run the following commands:
 
 ```
-./vcpkg/vcpkg install
+.\vcpkg\bootstrap-vcpkg.bat
+.\vcpkg\vcpkg install
 mkdir build
 cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake
 cmake --build
