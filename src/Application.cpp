@@ -19,6 +19,10 @@
 
 #include <States/MenuState.h>
 
+#include <Input/Input.h>
+
+
+
 const int WINDOW_WIDTH = 1280;
 const int WINDOW_HEIGHT = 720;
 
@@ -59,9 +63,14 @@ int Application::init(){
     Assets::active_texture = Assets::textures.get("./resources/pieceTextures/TGF2.png");
     Sounds::loadDirectory("./resources/sounds");
 
-    Input::InputProfile::Load("Default");
+    Input::CreateKeyboard();
 
     UI::Init(resolution);
+
+    local_player = new Player{
+        .game= new Game,
+        .identity = Identity::LoadRandom(),
+    };
 
     state_set(new MenuState());
     return 0;
@@ -87,8 +96,10 @@ int Application::execute() {
             events(event);
         }
 
+        Input::Update(frameDelta);
         update(frameDelta,newTime);
         render(frameDelta,newTime);
+        Input::Clear();
 
         end = SDL_GetPerformanceCounter();
         float elapsedMicroseconds = (end - start) / (float)SDL_GetPerformanceFrequency() * 1000000.0f;
@@ -185,8 +196,8 @@ void Application::events(const SDL_Event& event){
             if (UI::KeyCapture(event.key))
                 return;
             
-            // if (!event.key.repeat)
-            //     Input::KeyEvent(event.key);
+            if (!event.key.repeat)
+                Input::KeyEvent(event.key);
 
             if (event.key.keysym.sym == SDLK_0)
                 Sounds::play(Sounds::Slot::Combo10);

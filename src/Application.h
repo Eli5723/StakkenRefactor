@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 
 #include <Assets/Assets.h>
-
+#include <Player.h>
 #include <vector>
 
 struct State {
@@ -30,11 +30,14 @@ struct Application {
     
     // Game View Area
     glm::vec2 game_resolution{1280, 720};
-    glm::vec2 game_offset;
-    float game_scale;
+    glm::vec2 game_offset{0,0};
+    float game_scale = 1;
 
     // Delay
     float frame_delay;
+
+    // Global Record Related Data
+    Player* local_player = 0;
 
     int init();
     int execute();

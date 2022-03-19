@@ -60,10 +60,17 @@ namespace Input {
         std::string keyname;
         for (int i = 0; i < 8; i++) {
             std::getline(input, keyname);
-            loaded->keys[i] = SDL_GetScancodeFromName(keyname.c_str());
+            
+            SDL_Scancode key = SDL_GetScancodeFromName(keyname.c_str()); 
+            loaded->keys[i] = key;
+            
+            if (key == SDL_SCANCODE_UNKNOWN){
+                SDL_Log("Unknown keyname in profile %s.", name.c_str());
+            }
         }
 
         SDL_Log("Loaded keyboard profile \"%s\" from \"%s\"", name.c_str(), path.c_str());
+        SDL_Log("DAS: %i, %i, %i", loaded->das, loaded->arr, loaded->dropArr);
 
         return loaded;
     }

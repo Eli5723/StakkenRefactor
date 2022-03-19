@@ -15,6 +15,7 @@ Game* testBoard;
 UI::Node* settings_bar;
 UI::Node* settings_root;
 UI::Node* identity_editor;
+UI::Node* gameViewer;
 
 Identity* testIdentity;
 
@@ -41,16 +42,20 @@ void SettingsState::init(){
 
 	UI::AddToScreen(settings_bar);
 	settings_bar->right();
+	settings_bar->position.x -= RenderGame::PADDING;
+	settings_bar->position.y += RenderGame::PADDING;
+	settings_bar->ApplyOffsets();
 
 	testIdentity = Identity::LoadRandom();
 
 	identity_editor = new UI::ColorRotationEditor(*testIdentity);
 	UI::AddToScreen(identity_editor);
 	identity_editor->position.x = settings_bar->position.x - identity_editor->size.x;
+	identity_editor->position.y = settings_bar->position.y;
 	identity_editor->ApplyOffsets();
 
-	auto gameViewer = new UI::GameViewer(testBoard, testIdentity);
-	gameViewer->position = {RenderGame::PADDING, UI::Resolution().y - RenderGame::GAME_DIMENSIONS.y - RenderGame::PADDING};
+	gameViewer = new UI::GameViewer(testBoard, testIdentity);
+	gameViewer->position = {RenderGame::PADDING, UI::Resolution().y - RenderGame::PLAYER_DIMENSIONS.y - RenderGame::PADDING};
 
 	UI::AddToScreen(gameViewer);
 
@@ -68,9 +73,11 @@ void SettingsState::render(int dt, int time){
 void SettingsState::close(){
 	settings_bar->destroy_recursive();
 	identity_editor->destroy_recursive();
+	gameViewer->destroy();
+
 	UI::ClearState();
 
 	delete testIdentity;
-
     delete testBoard;
+
 }
