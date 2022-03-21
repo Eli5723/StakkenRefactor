@@ -198,7 +198,6 @@ namespace RenderGame
     void DrawGame(const glm::vec2 &position, Game &game, ColorTable *colorTable, Assets::Texture *texture, float scale)
     {
         DrawBoard(position, game.board, colorTable, texture, scale);
-
         int ghostY = game.GhostPieceY();
         DrawGhostPiece(position + glm::vec2(game.heldPiece.x * TILE_WIDTH * scale, (ghostY - Board::kOverflowRows) * TILE_WIDTH * scale), game.heldPiece, colorTable, texture, scale);
 
@@ -210,15 +209,37 @@ namespace RenderGame
 
         // Border
         Renderer::QuadBox(position, BOARD_DIMENSIONS * scale, pixelThickness, {1,1,1,1});
+        glm::vec2 status_offset = BOARD_DIMENSIONS * scale * glm::vec2{1.0f / 2.0f, 1.0f / 3.0f};
+    
+        DrawPiecePreview(position + glm::vec2{BOARD_DIMENSIONS.x + PADDING, 0.0f} * scale, game, colorTable, texture, scale);
+        DrawStats(position + glm::vec2{BOARD_DIMENSIONS.x + PADDING, PIECE_DIMENSIONS.y + PADDING} * scale, game, scale);
+    
+        // Draw Countdown if the game is being played and the time is less than 0
+        if (game.state == Game::State::Playing){
+            if (game.time > 0)
+                return;
+
+            return;
+        }
+
+        // Dim the board and draw a message explaning why it's paused
+        Renderer::DrawQuad(position, BOARD_DIMENSIONS * scale, {0, 0, 0, .3f});
 
         if (game.state == Game::State::Disabled)
         {
-            glm::vec2 status_offset = BOARD_DIMENSIONS * scale * glm::vec2{1.0f / 2.0f, 1.0f / 3.0f};
+            status_offset = BOARD_DIMENSIONS * scale * glm::vec2{1.0f / 2.0f, 1.0f / 3.0f};
             Renderer::DrawStrC(position + status_offset, 2.0f*scale, "Paused", Assets::active_font);
         }
 
-        DrawPiecePreview(position + glm::vec2{BOARD_DIMENSIONS.x + PADDING, 0.0f} * scale, game, colorTable, texture, scale);
-        DrawStats(position + glm::vec2{BOARD_DIMENSIONS.x + PADDING, PIECE_DIMENSIONS.y + PADDING} * scale, game, scale);
+        if (game.state == Game::State::Results)
+        {
+        switch (game.result){
+        break; case Game::Result::Win:
+            Renderer::DrawStrC(position + status_offset, 2.0f*scale, "You Win!", Assets::active_font);
+        break; case Game::Result::Lose:
+            Renderer::DrawStrC(position + status_offset, 2.0f*scale, "You Lose!", Assets::active_font);
+        }
+        }
     }
 
 

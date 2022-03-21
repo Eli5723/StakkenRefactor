@@ -256,6 +256,7 @@ namespace UI {
 
         GameViewer(Game* game, Identity* owner) : game(game), owner(owner) {
             hasStencil = true;
+            clippedContents = true;
             scale = 1;
         }
 

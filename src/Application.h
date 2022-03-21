@@ -6,6 +6,8 @@
 #include <Player.h>
 #include <vector>
 
+#include <Input/Input.h>
+
 struct State {
     virtual void init(){};
     virtual void update(int dt, int time){};
@@ -38,6 +40,8 @@ struct Application {
 
     // Global Record Related Data
     Player* local_player = 0;
+
+    Input::IController* local_controller;
 
     int init();
     int execute();

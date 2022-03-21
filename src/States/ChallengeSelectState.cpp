@@ -1,5 +1,3 @@
-#pragma once
-
 #include <States/ChallengeSelectState.h>
 
 #include <Application.h>

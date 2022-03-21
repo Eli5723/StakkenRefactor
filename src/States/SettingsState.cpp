@@ -21,6 +21,7 @@ Identity* testIdentity;
 
 void SettingsState::init(){
     testBoard = new Game;
+	testBoard->Reset(0);
 
 	settings_bar = new UI::Node();
 	settings_bar->addChild(new UI::TextButton(glm::vec2{192,48}, "Back", [](int, int){
@@ -63,6 +64,12 @@ void SettingsState::init(){
 }
 
 void SettingsState::update(int dt, int time){
+
+	EventBuffer* events = Application::instance->local_controller->getEvents();
+	testBoard->Events(events->events, events->count);
+
+	testBoard->Update(dt);
+
 
 }
 

@@ -31,6 +31,8 @@ void Game::Reset(int seed){
 
     heldPiece.Convert(INITIAL_PIECE_X, 0, firstPieceType, rotationTable[firstPieceType]);
     nextPiece.Convert(INITIAL_PIECE_X, 0, nextPieceType, rotationTable[nextPieceType]);
+
+    state = Game::State::Playing;
 }
 
 void Game::Update(int dt){

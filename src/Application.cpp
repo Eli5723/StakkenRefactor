@@ -63,7 +63,7 @@ int Application::init(){
     Assets::active_texture = Assets::textures.get("./resources/pieceTextures/TGF2.png");
     Sounds::loadDirectory("./resources/sounds");
 
-    Input::CreateKeyboard();
+    local_controller = Input::CreateKeyboard();
 
     UI::Init(resolution);
 
@@ -202,14 +202,14 @@ void Application::events(const SDL_Event& event){
             if (event.key.keysym.sym == SDLK_0)
                 Sounds::play(Sounds::Slot::Combo10);
 
-            if (event.key.keysym.sym == SDLK_UP  || event.key.keysym.sym == SDLK_LEFT)
-                UI::HoverPrevious();
+            // if (event.key.keysym.sym == SDLK_UP  || event.key.keysym.sym == SDLK_LEFT)
+            //     UI::HoverPrevious();
  
-            if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_RIGHT)
-                UI::HoverNext();
+            // if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_RIGHT)
+            //     UI::HoverNext();
 
-            if (event.key.keysym.sym == SDLK_SPACE)
-                UI::SelectHover();
+            // if (event.key.keysym.sym == SDLK_SPACE)
+            //     UI::SelectHover();
         }
         
     }
