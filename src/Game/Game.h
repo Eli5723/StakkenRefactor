@@ -9,12 +9,12 @@
 
 struct Game;
 struct GameRules {
-    virtual void on_update(Game* game, int dt);
-    virtual void on_place(Game* game,int cleared){};
-    virtual void on_win(Game* game){};
-    virtual void on_lose(Game* game);
-    virtual int score();
-    virtual bool result();
+    virtual void on_update(Game* game, int dt) = 0;
+    virtual void on_place(Game* game,int cleared, int combo)  = 0;
+    virtual void on_win(Game* game) = 0;
+    virtual void on_lose(Game* game) = 0;
+    virtual int score(Game* game) = 0; 
+    virtual bool result(Game* game) = 0;
 };
 
 
@@ -50,6 +50,8 @@ struct Game {
     XoroshiroRandomizer holeRandomizer;
 
     RotationTable rotationTable{0,0,3,1,0,0,1};
+
+    GameRules* rules = nullptr;
 
     int time = 0;
     int gravity_rate = 300;

@@ -1,5 +1,7 @@
 #include <Game/Game.h>
 
+#include <Assets/Sounds.h>
+
 // Constants
 int ClearGarbageTable[]{
     0,0,1,2,3
@@ -33,11 +35,17 @@ void Game::Reset(int seed){
     nextPiece.Convert(INITIAL_PIECE_X, 0, nextPieceType, rotationTable[nextPieceType]);
 
     state = Game::State::Playing;
+
+    board.clear();
 }
 
 void Game::Update(int dt){
     if (state == Game::State::Disabled)
         return;
+
+    if (rules){
+        rules->on_update(this, dt);
+    }
 
     time += dt;
 
@@ -160,25 +168,80 @@ void Game::ApplyHeldPiece(){
     TileType nextPieceType = (TileType)(pieceRandomizer.next()%7);
     nextPiece.Convert(INITIAL_PIECE_X, 0, nextPieceType, rotationTable[nextPieceType]);
 
-    if (cleared > 0)
+    if (cleared > 0){
         Clear(cleared);
-    else
+    } else {
         comboTimer -= 400;
+    }
+
+    Sounds::play(Sounds::Slot::Lock);
 }
 
 void Game::Clear(int count){
     // Report Cleared Lines to Game Rules
     stats.clears += count;
+    
+     if (comboTimer < 0)
+    {
+        combo = 0;
+        comboTimer = ComboTimeTable[0];
+    }
+    else
+    {
+        comboTimer += ComboTimeTable[combo];
+        comboTimer += count * ComboBonusTimeTable[combo];
+    }
+    
+    int send = 0;
+    send += ClearGarbageTable[count];
+    send += ComboGarbageTable[combo];
+    combo++;
+
+    Sounds::play(Sounds::Slot::Clear);
+
+    if (combo == 5)
+    {
+        Sounds::play(Sounds::Slot::Combo5);
+    }
+    else if (combo == 7)
+    {
+        Sounds::play(Sounds::Slot::Combo7);
+    }
+    else if (combo == 10)
+    {
+        Sounds::play(Sounds::Slot::Combo10);
+    }
+    else if (combo == 12)
+    {
+        Sounds::play(Sounds::Slot::Combo12);
+    }
+    else if (combo == 14)
+    {
+        Sounds::play(Sounds::Slot::Combo14);
+    }
+
+    stats.sent += send;
+    if (rules){
+        rules->on_place(this, count, send);
+    }
 }
 
 void Game::Win(){
     state = Game::State::Results;
     result = Game::Result::Win;
+
+    if (rules){
+        rules->on_win(this);
+    }
 }
 
 void Game::Lose(){
     state = Game::State::Results;
     result = Game::Result::Lose;
+
+    if (rules){
+        rules->on_lose(this);
+    }
 }
 
 void Game::Events(TetrisEvent* events, int count){

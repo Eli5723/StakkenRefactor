@@ -79,14 +79,6 @@ void Keyboard::update(int timeElapsed){
             buffer.queue(lastEvent);
         }
     }
-
-    if (buffer.count > 0){
-        for (int i=0; i < buffer.count; i++){
-            std::cout << ((char)buffer.events[i])+'a' << ' ';
-        }
-
-        std::cout << '\n';
-    }
 }
 
 void Keyboard::clear(){

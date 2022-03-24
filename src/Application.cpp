@@ -192,6 +192,10 @@ void Application::events(const SDL_Event& event){
             // if (ClientKeyEvent(event.key))
             //     return;
 
+
+            if (state_stack.back()->key_capture(event.key))
+                return;
+
             // TODO: Add hover control
             if (UI::KeyCapture(event.key))
                 return;

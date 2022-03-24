@@ -19,9 +19,22 @@ UI::Node* gameViewer;
 
 Identity* testIdentity;
 
+// Ruleset used to reset the board if the player fails
+// TODO: Add the ability to send yourself garbage
+struct TestGameRules : GameRules {
+    void on_update(Game* game, int dt){};
+    void on_place(Game* game,int cleared, int combo){};
+    void on_win(Game* game){};
+    void on_lose(Game* game){game->Reset(clock());};
+    int score(Game* game){return 0;};
+    bool result(Game* game){return 0;};
+} rules;
+
+
 void SettingsState::init(){
     testBoard = new Game;
-	testBoard->Reset(0);
+	testBoard->Reset(clock());
+	testBoard->rules = &rules;
 
 	settings_bar = new UI::Node();
 	settings_bar->addChild(new UI::TextButton(glm::vec2{192,48}, "Back", [](int, int){
@@ -75,6 +88,16 @@ void SettingsState::update(int dt, int time){
 
 void SettingsState::render(int dt, int time){
     // float fTime = (float)time/1000.0f;
+}
+
+bool SettingsState::key_capture(const SDL_KeyboardEvent& key){
+	if (key.keysym.sym == SDLK_F2){
+		testBoard->Reset(clock());
+		return true;
+	}
+
+
+	return false;
 }
 
 void SettingsState::close(){

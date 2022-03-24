@@ -12,6 +12,7 @@ struct State {
     virtual void init(){};
     virtual void update(int dt, int time){};
     virtual void render(int dt, int time){};
+    virtual bool key_capture(const SDL_KeyboardEvent& key){return false;};
     virtual void close(){};
     virtual void try_back(){};
 };

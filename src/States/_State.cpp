@@ -20,3 +20,5 @@ void _State::render(int dt, int time){
 void _State::close(){
 
 }
+
+bool _State::key_capture(const SDL_KeyboardEvent& key);
