@@ -58,6 +58,9 @@ add_executable (Stakken
     ${source_dir}/Game/Piece.cpp
     ${source_dir}/Game/Randomizers/XoroshiroRandomizer.cpp
 
+    ${source_dir}/Game/Demo.cpp
+    ${source_dir}/Game/DemoRecorder.cpp
+
     ${source_dir}/Input/InputProfile.cpp
     ${source_dir}/Input/Keyboard.cpp
     ${source_dir}/Input/Input.cpp
