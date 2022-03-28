@@ -39,6 +39,7 @@ struct Game {
         int lastPlacement = 0;
         int speed  = 0;
         int sent = 0;
+        int maxCombo = 0;
     };
     Stats stats;
 

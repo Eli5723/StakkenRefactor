@@ -13,6 +13,9 @@
 
 #include <Lobby.h>
 
+#include <Assets/Sounds.h>
+#include <Input/Input.h>
+
 namespace UI {
 
     struct Box : public Node {
@@ -34,6 +37,32 @@ namespace UI {
             Renderer::DrawStr(position, 0.5f, test, Assets::active_font);
         }
     };
+
+    struct Container : public Node {
+        Container(){}
+        void render(){
+            Renderer::DrawQuad(position, size,{0,0,0,1});
+        }
+    };
+
+    struct Label : public Node {
+        std::string text;
+        float scale = .5f;
+        Label(const std::string& text){
+            this->text = text;
+            this->size = Renderer::StrSize(scale,this->text, Assets::active_font);
+        }
+
+        void render(){
+            Renderer::DrawStr(position,scale,text,  Assets::active_font);
+        }
+
+        void setText(const std::string& newText){
+            this->text = newText;
+            this->size = Renderer::StrSize(scale,this->text,  Assets::active_font);
+        }
+    };
+
 
     struct Image : public Node {
         Assets::Texture* tex = 0;
@@ -273,6 +302,52 @@ namespace UI {
             RenderGame::DrawHeader(position, owner->pfp, owner->name, scale);
         }
     };
+
+    const std::string icons[] = {
+        "left.png",
+        "right.png",
+        "softdrop.png",
+        "harddrop.png",
+        "sonicdrop.png",
+        "rcw.png",
+        "rccw.png",
+        "flip.png",
+        "das.png",
+        "arr.png",
+        "droparr.png"
+    };
+
+
+    struct Input : public Node {
+        const int SIZE = 255;
+        char* value;
+        u8 cursor;
+        bool editing;
+        std::function<void(char*)> callback;
+
+        Input(std::function<void(char*)> callback);
+        ~Input();
+
+        void render();
+    };
+
+    struct NumericInput : public Node {
+        const int SIZE = 11; // Max amount of space for an integer
+        char* value;
+        int lastValue;
+        bool allowNegative = true;
+
+        u8 cursor;
+        bool editing;
+        std::function<void(int)> callback;
+
+        NumericInput(std::function<void(int)> callback, int initialValue);
+        ~NumericInput();
+        inline void SetValue(int toSet);
+
+        void render();
+    };
+
 
     // RenderGame::DrawBoardStencil(pos, scale);
     // RenderGame::DrawGame(pos,*testBoard, &test, Assets::active_texture, scale);

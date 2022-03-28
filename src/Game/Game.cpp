@@ -36,6 +36,11 @@ void Game::Reset(int seed){
 
     state = Game::State::Playing;
 
+    stats = {0};
+    time = 0;
+    comboTimer = 0;
+    combo = 0;  
+
     board.clear();
 }
 
@@ -196,6 +201,9 @@ void Game::Clear(int count){
     send += ClearGarbageTable[count];
     send += ComboGarbageTable[combo];
     combo++;
+
+    if (combo > stats.maxCombo)
+        stats.maxCombo = combo;
 
     Sounds::play(Sounds::Slot::Clear);
 

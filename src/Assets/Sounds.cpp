@@ -16,7 +16,8 @@ std::map<std::string, int> soundNames{
     {"Combo12"  , (size_t)Sounds::Slot::Combo12},
     {"Combo14"  , (size_t)Sounds::Slot::Combo14},
     {"Win"      , (size_t)Sounds::Slot::Win},
-    {"Reject"   , (size_t)Sounds::Slot::Reject}
+    {"Reject"   , (size_t)Sounds::Slot::Reject},
+    {"Click"   , (size_t)Sounds::Slot::Click}
 };
 
 int Sounds::enabled = true;

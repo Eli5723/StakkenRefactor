@@ -192,6 +192,22 @@ namespace RenderGame
         
         Renderer::DrawQuad(position, size*scale, {0.0f,0.0f,0.0f, settings.backgroundOpacity});
         Renderer::QuadBox(position, size*scale, pixelThickness, {1,1,1,1});
+        
+        const Game::Stats& stats = game.stats;
+
+        
+        if (scale > .3f) {
+            char textBuffer[75];
+            float bpm = (float)stats.piecesPlaced/((float)game.time/60000.0f);
+            float seconds = (float)game.time/1000.0f;
+            sprintf(textBuffer,"Time:\n%.2f\nCombo:\n%i (%i)\n Pending:\n%i", seconds, game.combo, game.stats.maxCombo, 0); // game.pendingLines
+            Renderer::DrawStr(position, .5f * scale, textBuffer, Assets::active_font);
+            
+            float comboRem = std::lerp(0.0f,1.0f,game.comboTimer / 2400.0f);
+            comboRem = comboRem > 0.0f ? comboRem : 0.0f;
+            comboRem = comboRem < 1.0f ? comboRem : 1.0f;   
+            Renderer::DrawQuad(position, {kStatsDimensions.x * comboRem, kStatsDimensions.y},{1.0f,0,0,.5});
+        }
         // DrawPiece(position, game.nextPiece, colorTable, texture);
     }
 
@@ -247,6 +263,8 @@ namespace RenderGame
     void DrawHeader(const glm::vec2 &position, Assets::Texture* pfp, const std::string& name, float scale){
         Renderer::DrawQuad(position, kPFPDimensions * scale, pfp->id, {1,1,1,1});
         // float namescale = Renderer::StrSize(1.0f, name, Assets::active_font).x / RenderGame::BOARD_DIMENSIONS.x;
+        
+        Renderer::DrawStr(position + glm::vec2{64 - RenderGame::MARGIN - 1, 1} * scale, FSCALE * scale, name.c_str(), Assets::active_font, {0,0,0,1});
         Renderer::DrawStr(position + glm::vec2{64 - RenderGame::MARGIN, 0} * scale, FSCALE * scale, name.c_str(), Assets::active_font);
     }
 

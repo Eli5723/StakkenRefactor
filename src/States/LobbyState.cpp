@@ -12,7 +12,7 @@ Lobby* testLobby;
 Player* localPlayer;
 
 
-const int TEST_PLAYER_COUNT = 1000;
+const int TEST_PLAYER_COUNT = 15;
 Player* foreignPlayers[TEST_PLAYER_COUNT];
 
 struct LobbyViewer : LobbyContext {
@@ -49,7 +49,7 @@ void LobbyState::init(){
     }
 
     int playercount = testLobby->players.size();
-    int columns = sqrt(playercount) + 1;
+    int columns = sqrt(playercount);
     int rows = sqrt(playercount) + 1;
 
     const glm::vec2 GAME_AREA_SIZE = {1280 - (RenderGame::GAME_DIMENSIONS.x + RenderGame::PADDING * 3), 720 - (RenderGame::PADDING*2)};

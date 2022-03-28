@@ -47,6 +47,11 @@ struct Keyboard : IController {
     void update(int timeElapsed);
     void clear();
     EventBuffer* getEvents();
+
+    // Config editing
+    UI::Node* create_config_window();
+    void save_config_window();
+
 };
 
 }

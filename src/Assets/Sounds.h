@@ -21,6 +21,7 @@ struct Sounds {
         Win,
         Reject,
         Count,
+        Click,
     };
 
     static int enabled;

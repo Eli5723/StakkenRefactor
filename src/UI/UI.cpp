@@ -99,6 +99,22 @@ bool KeyCapture(const SDL_KeyboardEvent& event){
         return true;
     }
 
+    // TODO: Reimplement when I figure out a way to manage gameplay focus
+    // if (event.keysym.sym == SDLK_UP  || event.keysym.sym == SDLK_LEFT){
+    //     UI::HoverPrevious();
+    //     return true;
+    // }
+
+    // if (event.keysym.sym == SDLK_DOWN || event.keysym.sym == SDLK_RIGHT){
+    //     UI::HoverNext();
+    //     return false;
+    // }
+
+    // if (event.keysym.sym == SDLK_SPACE){
+    //     UI::SelectHover();
+    //     return false;
+    //}
+
     return false;
 }
 
@@ -213,6 +229,7 @@ bool Click(Node* root, int x, int y){
 
     if (root->clickCallback) {
         root->clickCallback(x - root->position.x, y - root->position.y);
+        Sounds::play(Sounds::Slot::Click);
         return true;
     } else if (root->dragCallback){
         // Used to hide the cursor while dragging so that the user can focus

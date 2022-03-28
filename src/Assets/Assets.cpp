@@ -27,4 +27,17 @@ void Init(){
 
 }
 
+void load_next_texture(){
+	Texture* texture = textures.get(textureDirectory.next());
+		if (texture)
+			active_texture = texture;
+}
+
+void load_next_shader(){
+    Assets::BGShader* shader = Assets::bgShaders.get(Assets::shaderDirectory.next());
+    if (shader)
+        Assets::active_shader = shader;
+}
+
+
 }

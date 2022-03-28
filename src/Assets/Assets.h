@@ -59,6 +59,9 @@ extern BGShader* active_shader;
 extern Texture* active_texture;
 extern Font* active_font;
 
+void load_next_texture();
+void load_next_shader();
+
 void Init();
 
 }

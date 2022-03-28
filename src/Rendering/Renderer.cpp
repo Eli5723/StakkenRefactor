@@ -531,8 +531,6 @@ void Renderer::DrawStr(const glm::vec2& position,float scale, const std::string&
 	if (!font)
 		return;
 
-
-	scale *= .5f;
 	//If we run out of indices or textures slots, draw everything and reset the buffers
 	if (s_Data.IndexCount + str.length()*6 >= MaxIndexCount || s_Data.TextureSlotIndex > 31) {
 		EndBatch();

@@ -203,19 +203,21 @@ void Application::events(const SDL_Event& event){
             if (!event.key.repeat)
                 Input::KeyEvent(event.key);
 
-            if (event.key.keysym.sym == SDLK_0)
-                Sounds::play(Sounds::Slot::Combo10);
 
-            // if (event.key.keysym.sym == SDLK_UP  || event.key.keysym.sym == SDLK_LEFT)
-            //     UI::HoverPrevious();
+            if (event.key.keysym.sym == SDLK_F5)
+                Assets::load_next_shader();
  
-            // if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_RIGHT)
-            //     UI::HoverNext();
+            if (event.key.keysym.sym == SDLK_F6)
+                Assets::load_next_texture();
 
-            // if (event.key.keysym.sym == SDLK_SPACE)
-            //     UI::SelectHover();
+            if (event.key.keysym.sym == SDLK_F7)
+                Sounds::Toggle();
         }
         
+        case SDL_TEXTINPUT:
+            UI::InputCapture(event.text);
+        break;
+
     }
 }
 
