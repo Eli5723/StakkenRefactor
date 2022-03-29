@@ -47,6 +47,9 @@ void Game::Reset(int seed){
 
     if (rules)
         rules->on_init(this);
+
+    if (demo)
+        demo->reset(seed);
 }
 
 void Game::Update(int dt){
@@ -67,27 +70,45 @@ void Game::Update(int dt){
     }
 
     comboTimer -= dt;
+
+    if (demo)
+        demo->advance(dt);
 }
 
 
 void Game::Flip(){
     heldPiece.flip();
-    if (!board.offsetTest(&heldPiece))
+    if (!board.offsetTest(&heldPiece)) {
         heldPiece.flip();
+        return;
+    }
+
+    if (demo)
+        demo->registerEvent(TetrisEvent::Flip);
 }
 
 void Game::RCW()
 {
     heldPiece.rotateCW();
-    if (!board.offsetTest(&heldPiece))
+    if (!board.offsetTest(&heldPiece)){
         heldPiece.rotateCCW();
+        return;
+    }
+
+    if (demo)
+        demo->registerEvent(TetrisEvent::RCW);
 }
 
 void Game::RCCW()
 {
     heldPiece.rotateCCW();
-    if (!board.offsetTest(&heldPiece))
+    if (!board.offsetTest(&heldPiece)){
         heldPiece.rotateCW();
+        return;
+    }
+
+    if (demo)
+        demo->registerEvent(TetrisEvent::RCCW);
 }
 
 void Game::Left()
@@ -96,14 +117,23 @@ void Game::Left()
     if (!board.checkFit(&heldPiece))
     {
         heldPiece.moveRight();
+        return;
     }
+
+    if (demo)
+        demo->registerEvent(TetrisEvent::Left);
 }
 
 void Game::Right()
 {
     heldPiece.moveRight();
-    if (!board.checkFit(&heldPiece))
+    if (!board.checkFit(&heldPiece)){
         heldPiece.moveLeft();
+        return;
+    }
+
+    if (demo)
+        demo->registerEvent(TetrisEvent::Right);
 
 }
 
@@ -118,6 +148,9 @@ void Game::SoftDrop()
     {
         gravityTimer = gravity_rate;
     }
+
+    if (demo)
+        demo->registerEvent(TetrisEvent::SoftDrop);
 }
 
 void Game::SonicDrop()
@@ -136,6 +169,9 @@ void Game::SonicDrop()
     {
         gravityTimer = gravity_rate;
     }
+
+    if (demo)
+        demo->registerEvent(TetrisEvent::SonicDrop);
 }
 
 void Game::HardDrop()
@@ -144,12 +180,18 @@ void Game::HardDrop()
         heldPiece.moveDown();
     heldPiece.moveUp();
     ApplyHeldPiece();
+
+    if (demo)
+        demo->registerEvent(TetrisEvent::HardDrop);
 }
 
 void Game::Creep(){
     if (heldPiece.y > 0)
         heldPiece.moveUp();
     board.addLine(holeRandomizer.next() % 10);
+
+    if (demo)
+        demo->registerEvent(TetrisEvent::Creep);
 }
 
 void Game::Gravity()
@@ -160,6 +202,9 @@ void Game::Gravity()
         heldPiece.moveUp();
         ApplyHeldPiece();
     }
+
+    if (demo)
+        demo->registerEvent(TetrisEvent::Gravity);
 }
 
 
@@ -183,6 +228,8 @@ void Game::ApplyHeldPiece(){
     } else {
         comboTimer -= 400;
     }
+
+    stats.piecesPlaced++;
 
     Sounds::play(Sounds::Slot::Lock);
 }
@@ -246,6 +293,11 @@ void Game::Win(){
     if (rules){
         rules->on_win(this);
     }
+
+    if (demo) {
+        demo->registerEvent(TetrisEvent::Win);
+        demo->save("./demos/last_played.rep");
+    }
 }
 
 void Game::Lose(){
@@ -255,6 +307,16 @@ void Game::Lose(){
     if (rules){
         rules->on_lose(this);
     }
+
+    if (demo) {
+        demo->registerEvent(TetrisEvent::Lose);
+        demo->save("./demos/last_played.rep");
+    }
+}
+
+void Game::Disable(){
+    Lose();
+    state = Game::State::Disabled;
 }
 
 void Game::Events(TetrisEvent* events, int count){

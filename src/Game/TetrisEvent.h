@@ -23,6 +23,9 @@ enum class TetrisEvent : u8 {
     AddRow,
     SendLines,
 
+    Lose,
+    Win,
+
 
     // Utility
     Count

@@ -72,7 +72,7 @@ int Application::init(){
         .identity = Identity::LoadRandom(),
     };
 
-    Demo::Load("./demos/replay.rep");
+    Demo::Load("./demos/last_played.rep");
     
     state_set(new MenuState());
     return 0;

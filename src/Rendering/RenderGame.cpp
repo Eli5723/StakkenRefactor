@@ -196,18 +196,24 @@ namespace RenderGame
         const Game::Stats& stats = game.stats;
 
         
-        if (scale > .3f) {
-            char textBuffer[75];
-            float bpm = (float)stats.piecesPlaced/((float)game.time/60000.0f);
-            float seconds = (float)game.time/1000.0f;
-            sprintf(textBuffer,"Time:\n%.2f\nCombo:\n%i (%i)\n Pending:\n%i", seconds, game.combo, game.stats.maxCombo, 0); // game.pendingLines
-            Renderer::DrawStr(position, .5f * scale, textBuffer, Assets::active_font);
-            
-            float comboRem = std::lerp(0.0f,1.0f,game.comboTimer / 2400.0f);
-            comboRem = comboRem > 0.0f ? comboRem : 0.0f;
-            comboRem = comboRem < 1.0f ? comboRem : 1.0f;   
-            Renderer::DrawQuad(position, {kStatsDimensions.x * comboRem, kStatsDimensions.y},{1.0f,0,0,.5});
-        }
+        if (scale <= .3f)
+            return;
+
+
+        char textBuffer[75];
+        float bpm = (float)stats.piecesPlaced/((float)game.time/60000.0f);
+        float seconds = (float)game.time/1000.0f;
+        sprintf(textBuffer,"Time:\n%.2f\nCombo:\n%i (%i)\n Pending:\n%i", seconds, game.combo, game.stats.maxCombo, 0); // game.pendingLines
+        Renderer::DrawStr(position, .5f * scale, textBuffer, Assets::active_font);
+        
+        float comboRem = std::lerp(0.0f,1.0f,game.comboTimer / 2400.0f);
+        comboRem = comboRem > 0.0f ? comboRem : 0.0f;
+        comboRem = comboRem < 1.0f ? comboRem : 1.0f;   
+        Renderer::DrawQuad(position, {kStatsDimensions.x * comboRem, kStatsDimensions.y},{1.0f,0,0,.5});
+    
+        sprintf(textBuffer,"%.0f",bpm);
+        Renderer::DrawNeedle(position + glm::vec2{kStatsDimensions.x/2,kStatsDimensions.y - 100}*scale, 55.0f, glm::radians(180.0f + (bpm)));
+        Renderer::DrawStrC(position + glm::vec2{kStatsDimensions.x/2 -10, kStatsDimensions.y - 100}*scale, 2.0f*scale, textBuffer, Assets::active_font);
         // DrawPiece(position, game.nextPiece, colorTable, texture);
     }
 

@@ -4,6 +4,7 @@
 #include <Game/Piece.h>
 #include <Game/TetrisEvent.h>
 #include <Game/RotationTable.h>
+#include <Game/DemoRecorder.h>
 
 #include <Game/Randomizers/XoroshiroRandomizer.h>
 
@@ -57,6 +58,8 @@ struct Game {
 
     RotationTable rotationTable{0,0,3,1,0,0,1};
 
+    Recorder* demo = 0;
+
     GameRules* rules = nullptr;
 
     int time = 0;
@@ -90,6 +93,8 @@ struct Game {
     void Gravity();
 	void Creep();
 	void ApplyHeldPiece();
+
+    void Disable();
 
     inline void Clear(int count);
 
