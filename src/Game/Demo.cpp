@@ -57,7 +57,7 @@ Demo* Demo::Load(const std::filesystem::path& path){
     recording.read((char*)&demo->duration,sizeof(int));
     recording.read((char*)&demo->frameCount,sizeof(int));
 
-    printf("Read Demo:\n  Seed: %u\n  Duration: %u\n  Frames: %u\n", demo->seed, demo->duration, demo->frameCount);
+    printf("Loading Demo:\n  Seed: %u\n  Duration: %u\n  Frames: %u\n", demo->seed, demo->duration, demo->frameCount);
 
     int frameDuration;
     int eventCount;
@@ -81,5 +81,6 @@ Demo* Demo::Load(const std::filesystem::path& path){
         demo->buffer.events = &demo->events.data()[0];
     }
 
+    printf("Demo loaded successfully\n");
     return demo;
 }

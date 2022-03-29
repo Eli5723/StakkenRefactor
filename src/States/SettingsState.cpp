@@ -51,10 +51,7 @@ void SettingsState::init(){
 	settings_bar->addChild(new UI::Slider<float>(glm::vec2{192,48}, 0.0f, 1.0f, RenderGame::settings.backgroundOpacity, "BG Alpha"));
 	settings_bar->listLayout();
 
-
-	testIdentity = Identity::LoadRandom();
-
-	identity_editor = new UI::ColorRotationEditor(*testIdentity);
+	identity_editor = new UI::ColorRotationEditor(*Application::instance->local_identity);
 	UI::AddToScreen(identity_editor);
 	identity_editor->right();
 	identity_editor->position.x -= RenderGame::PADDING;
@@ -73,7 +70,7 @@ void SettingsState::init(){
 	keybinds->MoveTo({identity_editor->position.x - keybinds->size.x, identity_editor->position.y});
 	keybinds->ApplyOffsets();
 
-	gameViewer = new UI::GameViewer(testBoard, testIdentity);
+	gameViewer = new UI::GameViewer(testBoard, Application::instance->local_identity);
 	gameViewer->position = {RenderGame::PADDING, UI::Resolution().y - RenderGame::PLAYER_DIMENSIONS.y - RenderGame::PADDING};
 
 	UI::AddToScreen(gameViewer);

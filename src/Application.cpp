@@ -20,8 +20,7 @@
 #include <States/MenuState.h>
 
 #include <Input/Input.h>
-
-
+#include <Game/Demo.h>
 
 const int WINDOW_WIDTH = 1280;
 const int WINDOW_HEIGHT = 720;
@@ -64,6 +63,7 @@ int Application::init(){
     Sounds::loadDirectory("./resources/sounds");
 
     local_controller = Input::CreateKeyboard();
+    local_identity = Identity::LoadRandom();
 
     UI::Init(resolution);
 
@@ -72,6 +72,8 @@ int Application::init(){
         .identity = Identity::LoadRandom(),
     };
 
+    Demo::Load("./demos/replay.rep");
+    
     state_set(new MenuState());
     return 0;
 }

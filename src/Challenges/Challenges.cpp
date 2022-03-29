@@ -21,4 +21,14 @@ const std::string& getChallengeDescription(int challengeId){
     return challengeDescription[challengeId];
 }
 
+GameRules* getChallenge(int challengeID){
+    switch (challengeID){
+        case 0: return new Sprint;
+        case 1: return new Survivor;
+    }
+
+    printf("Tried to load nonexistant gammeode.\n");
+    return 0;
+}
+
 }

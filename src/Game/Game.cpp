@@ -40,12 +40,17 @@ void Game::Reset(int seed){
     time = 0;
     comboTimer = 0;
     combo = 0;  
+  
+    creep_timer = 0;
 
     board.clear();
+
+    if (rules)
+        rules->on_init(this);
 }
 
 void Game::Update(int dt){
-    if (state == Game::State::Disabled)
+    if (state != Game::State::Playing)
         return;
 
     if (rules){

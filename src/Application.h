@@ -6,6 +6,7 @@
 #include <Player.h>
 #include <vector>
 
+
 #include <Input/Input.h>
 
 struct State {
@@ -43,6 +44,11 @@ struct Application {
     Player* local_player = 0;
 
     Input::IController* local_controller;
+
+    Identity* local_identity;
+
+    // Game State
+    int challenge_mode = -1;
 
     int init();
     int execute();

@@ -9,12 +9,17 @@
 
 struct Game;
 struct GameRules {
+    virtual void on_init(Game* game){};
     virtual void on_update(Game* game, int dt) = 0;
-    virtual void on_place(Game* game,int cleared, int combo)  = 0;
-    virtual void on_win(Game* game) = 0;
-    virtual void on_lose(Game* game) = 0;
-    virtual int score(Game* game) = 0; 
-    virtual bool result(Game* game) = 0;
+    virtual void on_place(Game* game,int cleared, int combo) = 0;
+    virtual void on_win(Game* game){};
+    virtual void on_lose(Game* game){};
+    virtual int score(Game* game){return 0;}; 
+    virtual bool result(Game* game){return 0;};
+
+    bool compare(int score_a, int score_b){
+        return score_a > score_b;
+    }
 };
 
 
