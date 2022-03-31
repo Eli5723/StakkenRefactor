@@ -12,23 +12,20 @@ UI::Node* exitButton;
 
 UI::Node* challengeGameViewer;
 
-UI::Node* challengeTitle;
-UI::Node* challengeDescription;
-
 UI::Node* gamemodeInformation;
 
 Game* board;
 
 void ChallengePlayState::init(){
     // Exit Button
-    exitButton = new UI::TextButton("Go Back", [](int,int){
+    exitButton = new UI::TextButton("Back", [](int,int){
         Application::instance->state_set(new ChallengeSelectState);
     });
     UI::AddToScreen(exitButton);
 
     // Game
     board = new Game;
-    board->rules = Challenges::getChallenge(Application::instance->challenge_mode);
+    board->rules = Challenges::getChallenge(challengeID);
     
     board->demo = new Recorder;
     board->Reset(clock());
@@ -39,12 +36,23 @@ void ChallengePlayState::init(){
 
     // Game Objective
     gamemodeInformation = new UI::Container;
-    gamemodeInformation->addChild(new UI::Label(Challenges::getChallengeName(Application::instance->challenge_mode)));
-    gamemodeInformation->addChild(new UI::Label(Challenges::getChallengeDescription(Application::instance->challenge_mode)));
+    gamemodeInformation->addChild(new UI::Label(Challenges::getChallengeName(challengeID)));
+    gamemodeInformation->addChild(new UI::Label(Challenges::getChallengeDescription(challengeID)));
+
+    char recordText[40] = "Record:\n                              ";
+    int record = Challenges::getRecord(challengeID);
+    board->rules->score_format(record, &recordText[10]);
+
+    gamemodeInformation->addChild(new UI::Label(recordText));
     
     UI::AddToScreen(gamemodeInformation);
     gamemodeInformation->listLayout();
     gamemodeInformation->right();
+
+
+    board->on_win = [](){
+        printf("The challenge was won!\n");
+    };
 
 }
 
@@ -80,8 +88,7 @@ void ChallengePlayState::close(){
     delete board->demo;
     delete board;
 
-    challengeTitle->destroy();
-    challengeDescription->destroy();
+    gamemodeInformation->destroy_recursive();
 
     UI::ClearState();
 }

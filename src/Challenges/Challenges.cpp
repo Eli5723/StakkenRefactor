@@ -31,4 +31,41 @@ GameRules* getChallenge(int challengeID){
     return 0;
 }
 
+
+GameRules* challenges[]{
+    new Sprint,
+    new Survivor,
+};
+
+int records[CHALLENGE::_COUNT]{
+    35000,
+    60000 * 2,
+    200
+};
+
+
+int getRecord(int challengeID){
+    if (challengeID < 0 || challengeID >= CHALLENGE::_COUNT)
+        return -1; 
+
+    return records[challengeID];
+}
+
+bool compareRecord(int challengeID, int score){
+    if (challengeID < 0 || challengeID >= CHALLENGE::_COUNT)
+        return false;
+
+    int record = getRecord(challengeID);
+
+    if (challenges[challengeID]->compare(score,record)){
+        records[challengeID] = score;
+        return true;
+    }
+
+    return false;
+
+}
+
+
+
 }

@@ -6,7 +6,10 @@
 #include <Game/RotationTable.h>
 #include <Game/DemoRecorder.h>
 
+#include <functional>
+
 #include <Game/Randomizers/XoroshiroRandomizer.h>
+#include <Game/Randomizers/SimonRandomizer.h>
 
 struct Game;
 struct GameRules {
@@ -17,6 +20,8 @@ struct GameRules {
     virtual void on_lose(Game* game){};
     virtual int score(Game* game){return 0;}; 
     virtual bool result(Game* game){return 0;};
+
+    virtual void score_format(int score, char*){};
 
     bool compare(int score_a, int score_b){
         return score_a > score_b;
@@ -46,6 +51,7 @@ struct Game {
         int speed  = 0;
         int sent = 0;
         int maxCombo = 0;
+        int linesAdded = 0;
     };
     Stats stats;
 
@@ -53,7 +59,7 @@ struct Game {
     Piece heldPiece{0,0,0,0};
     Piece nextPiece{0,0,0,0};
 
-    XoroshiroRandomizer pieceRandomizer;
+    SimonRandomizer pieceRandomizer;
     XoroshiroRandomizer holeRandomizer;
 
     RotationTable rotationTable{0,0,3,1,0,0,1};
@@ -75,6 +81,8 @@ struct Game {
     int comboTimer = 0;
 
     bool recieved_input;
+
+    std::function<void()> on_win; 
 
     void Reset(int seed);
     void Update(int dt);

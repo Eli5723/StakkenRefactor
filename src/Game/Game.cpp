@@ -37,7 +37,7 @@ void Game::Reset(int seed){
     state = Game::State::Playing;
 
     stats = {0};
-    time = 0;
+    time = -3000;
     comboTimer = 0;
     combo = 0;  
   
@@ -55,6 +55,29 @@ void Game::Reset(int seed){
 void Game::Update(int dt){
     if (state != Game::State::Playing)
         return;
+
+    // Countdown
+    if (time < 0){
+        if (time < -2000 && time + dt >= -2000)
+        {
+            Sounds::play(Sounds::Slot::Win);
+            time += dt;
+            return;
+        }
+        else if (time < -1000 && time + dt >= -1000)
+        {
+            time += dt;
+            Sounds::play(Sounds::Slot::Win);
+            return;
+        }
+        else if (time < 0 && time + dt >= 0){
+            Sounds::play(Sounds::Slot::Win);
+        }
+        else{
+            time += dt;
+            return;
+        }
+    }
 
     if (rules){
         rules->on_update(this, dt);
@@ -190,6 +213,8 @@ void Game::Creep(){
         heldPiece.moveUp();
     board.addLine(holeRandomizer.next() % 10);
 
+    stats.linesAdded++;
+
     if (demo)
         demo->registerEvent(TetrisEvent::Creep);
 }
@@ -298,6 +323,9 @@ void Game::Win(){
         demo->registerEvent(TetrisEvent::Win);
         demo->save("./demos/last_played.rep");
     }
+
+    if (on_win)
+        (on_win)();
 }
 
 void Game::Lose(){
@@ -320,7 +348,7 @@ void Game::Disable(){
 }
 
 void Game::Events(TetrisEvent* events, int count){
-    if (state != Game::State::Playing)
+    if (state != Game::State::Playing || time < 0)
         return;
 
     for (int i = 0; i < count; i++){

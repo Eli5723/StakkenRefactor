@@ -58,6 +58,7 @@ add_executable (Stakken
     ${source_dir}/Game/Board.cpp
     ${source_dir}/Game/Piece.cpp
     ${source_dir}/Game/Randomizers/XoroshiroRandomizer.cpp
+    ${source_dir}/Game/Randomizers/SimonRandomizer.cpp
 
     ${source_dir}/Game/Demo.cpp
     ${source_dir}/Game/DemoRecorder.cpp

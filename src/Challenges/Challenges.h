@@ -29,11 +29,15 @@ struct Sprint : GameRules {
 
     int score(Game* game){
         return game->time;
-
     }; 
 
     bool compare(int score_a, int score_b){
         return score_a < score_b;
+    }
+
+    void score_format(int score, char* str){
+        float seconds = (float)score/1000.0f;
+        sprintf(str,"Time: %.2f", seconds);
     }
 };
 
@@ -42,6 +46,7 @@ struct Survivor : GameRules {
     
     void on_init(Game* game){
         game->creep_rate = creepTime;
+        game->creep_timer = creepTime;
         game->Creep();
     }
 
@@ -53,22 +58,29 @@ struct Survivor : GameRules {
         } 
     };
     void on_place(Game* game,int cleared, int combo){
-        if (game->stats.clears >= 40){
-            game->Win();
-        }
+
     };
 
     int score(Game* game){
         return game->time;
-
     }; 
 
+    void on_lose(Game* game){
+        // If you top out after 1 minute, you have survived long enough to win.
+        // TODO: Ensure this is sane
+        if (game->time > 60000)
+            game->Win();
+    }
+
     bool compare(int score_a, int score_b){
-        return score_a < score_b;
+        return score_a > score_b;
     }
 };
 
 
 GameRules* getChallenge(int challengeID);
+
+int getRecord(int challengeID);
+bool compareRecord(int ChallengeID, int score);
 
 }

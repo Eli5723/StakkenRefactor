@@ -217,6 +217,8 @@ namespace RenderGame
         // DrawPiece(position, game.nextPiece, colorTable, texture);
     }
 
+    #define DIGIT_STR(digit) {(char)('0' + digit), '\0'}
+
     void DrawGame(const glm::vec2 &position, Game &game, ColorTable *colorTable, Assets::Texture *texture, float scale)
     {
         DrawBoard(position, game.board, colorTable, texture, scale);
@@ -225,6 +227,16 @@ namespace RenderGame
 
         // Draw Actual Piece after ghost piece to prevent blending
         DrawPiece(position + glm::vec2(game.heldPiece.x * TILE_WIDTH, (game.heldPiece.y - Board::kOverflowRows) * TILE_WIDTH), game.heldPiece, colorTable, texture, scale);
+
+
+        if (game.time < 0) {
+            int second = abs(game.time / 1000) + 1;
+            float sscale = 4.0f - ((game.time%1000)/1000.0f)*5 * scale;
+            char str[2] DIGIT_STR(second);
+            glm::vec2 size = Renderer::StrSize(sscale, (char*)&str, Assets::active_font);
+            Renderer::DrawStr(position + glm::vec2{BOARD_DIMENSIONS.x*.5f, BOARD_DIMENSIONS.y*.3f} - (size*.5f), sscale, (char*)&str, Assets::active_font);
+        }
+
     }
 
     void DrawGameUI(const glm::vec2 &position, Game &game, ColorTable* colorTable, Assets::Texture* texture, float scale){
