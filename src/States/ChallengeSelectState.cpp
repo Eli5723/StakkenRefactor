@@ -15,19 +15,16 @@ void ChallengeSelectState::init(){
     UI::Node* challengeSelectItem;
 
     challengeSelectItem = new UI::TextButton("Sprint", [](int,int){
-        Application::instance->challenge_mode = Challenges::SPRINT;
         Application::instance->state_set(new ChallengePlayState(Challenges::CHALLENGE::SPRINT));
     });
     challengeList->addChild(challengeSelectItem);
 
     challengeSelectItem = new UI::TextButton("Survival", [](int,int){
-        Application::instance->challenge_mode = Challenges::SURVIVAL;
         Application::instance->state_set(new ChallengePlayState(Challenges::CHALLENGE::SURVIVAL));
     });
     challengeList->addChild(challengeSelectItem);
 
     challengeSelectItem = new UI::TextButton("z2sam", [](int,int){
-        Application::instance->challenge_mode = Challenges::Z2SAM;
         Application::instance->state_set(new ChallengePlayState(Challenges::CHALLENGE::Z2SAM));
     });
     challengeList->addChild(challengeSelectItem);

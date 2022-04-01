@@ -50,8 +50,18 @@ void ChallengePlayState::init(){
     gamemodeInformation->right();
 
 
-    board->on_win = [](){
+    board->on_win = [record](){
         printf("The challenge was won!\n");
+
+        bool outcome = Challenges::compareRecord(board->rules->get_id(), board->rules->score(board));
+        
+        if (outcome){
+            printf("New record!\n");
+            Sounds::play(Sounds::Slot::Combo14);
+        } else {
+            printf("Challenge complete! But you didn't break the record...\n");
+        }
+
     };
 
 }

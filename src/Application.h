@@ -47,9 +47,6 @@ struct Application {
 
     Identity* local_identity;
 
-    // Game State
-    int challenge_mode = -1;
-
     int init();
     int execute();
     void update(int dt, int time);

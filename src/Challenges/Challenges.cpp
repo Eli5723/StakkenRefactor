@@ -38,7 +38,7 @@ GameRules* challenges[]{
 };
 
 int records[CHALLENGE::_COUNT]{
-    35000,
+    60000,
     60000 * 2,
     200
 };

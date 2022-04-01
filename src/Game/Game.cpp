@@ -42,6 +42,7 @@ void Game::Reset(int seed){
     combo = 0;  
   
     creep_timer = 0;
+    pending_lines = 0;
 
     board.clear();
 

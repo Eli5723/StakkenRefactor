@@ -203,7 +203,7 @@ namespace RenderGame
         char textBuffer[75];
         float bpm = (float)stats.piecesPlaced/((float)game.time/60000.0f);
         float seconds = (float)game.time/1000.0f;
-        sprintf(textBuffer,"Time:\n%.2f\nCombo:\n%i (%i)\n Pending:\n%i", seconds, game.combo, game.stats.maxCombo, 0); // game.pendingLines
+        sprintf(textBuffer,"Time:\n%.2f\nCombo:\n%i (%i)\n Pending:\n%i\nCleared:\n%i", seconds, game.combo, game.stats.maxCombo, game.pending_lines, game.stats.clears); // game.pendingLines
         Renderer::DrawStr(position, .5f * scale, textBuffer, Assets::active_font);
         
         float comboRem = std::lerp(0.0f,1.0f,game.comboTimer / 2400.0f);

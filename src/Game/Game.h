@@ -13,6 +13,8 @@
 
 struct Game;
 struct GameRules {
+    virtual int get_id(){return -1;}
+
     virtual void on_init(Game* game){};
     virtual void on_update(Game* game, int dt) = 0;
     virtual void on_place(Game* game,int cleared, int combo) = 0;
@@ -23,7 +25,7 @@ struct GameRules {
 
     virtual void score_format(int score, char*){};
 
-    bool compare(int score_a, int score_b){
+    virtual bool compare(int score_a, int score_b){
         return score_a > score_b;
     }
 };
@@ -76,6 +78,7 @@ struct Game {
     int creep_timer;
     int last_creep = 0;
     bool creeping = false;
+    int pending_lines = 0;
 
     int combo = 0;
     int comboTimer = 0;

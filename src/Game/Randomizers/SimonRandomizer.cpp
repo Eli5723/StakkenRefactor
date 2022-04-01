@@ -30,7 +30,7 @@ uint64_t SimonRandomizer::next(void) {
         }
 
         piece = source.next()%7;
-        last = piece;
+        last = -1;
         return piece;
     }
 

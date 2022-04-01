@@ -18,6 +18,8 @@ const std::string& getChallengeName(int challengeId);
 const std::string& getChallengeDescription(int challengeId);
 
 struct Sprint : GameRules {
+    int get_id(){return 0;}
+    
     void on_update(Game* game, int dt){
         
     };
@@ -42,6 +44,8 @@ struct Sprint : GameRules {
 };
 
 struct Survivor : GameRules {
+    int get_id(){return 1;}
+
     int creepTime = 4000;
     
     void on_init(Game* game){

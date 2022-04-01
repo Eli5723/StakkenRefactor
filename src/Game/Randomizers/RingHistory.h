@@ -24,6 +24,4 @@ struct RingHistory {
         }
         return false;
     }
-
-
 };
