@@ -25,6 +25,7 @@ GameRules* getChallenge(int challengeID){
     switch (challengeID){
         case 0: return new Sprint;
         case 1: return new Survivor;
+        case 2: return new z2sam;
     }
 
     printf("Tried to load nonexistant gammeode.\n");
@@ -35,6 +36,7 @@ GameRules* getChallenge(int challengeID){
 GameRules* challenges[]{
     new Sprint,
     new Survivor,
+    new z2sam
 };
 
 int records[CHALLENGE::_COUNT]{
@@ -57,7 +59,7 @@ bool compareRecord(int challengeID, int score){
 
     int record = getRecord(challengeID);
 
-    if (challenges[challengeID]->compare(score,record)){
+    if (challenges[challengeID]->score_compare(score,record)){
         records[challengeID] = score;
         return true;
     }

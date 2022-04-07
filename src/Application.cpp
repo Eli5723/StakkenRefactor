@@ -26,6 +26,7 @@ const int WINDOW_WIDTH = 1280;
 const int WINDOW_HEIGHT = 720;
 
 Application* Application::instance;
+DemoPlayer* test;
 
 int Application::init(){
     instance = this;
@@ -67,13 +68,17 @@ int Application::init(){
 
     UI::Init(resolution);
 
-    local_player = new Player{
-        .game= new Game,
-        .identity = Identity::LoadRandom(),
-    };
+    Demo* demo = Demo::Load("./demos/last_played.rep");
+    test = new DemoPlayer;
+    test->demo = demo;
+    test->restart();
 
-    Demo::Load("./demos/last_played.rep");
-    
+    // auto a = new UI::GameViewer;
+    // a->game = &test->target;
+    // a->owner = local_identity;
+
+    // UI::AddToScreen(a);
+
     state_set(new MenuState());
     return 0;
 }
@@ -119,6 +124,8 @@ void Application::update(int dt, int time){
     state_stack.back()->update(dt, time);
     
     UI::Update(dt);
+
+    // test->advance(dt);
 }
 
 void Application::render(int dt, int time){

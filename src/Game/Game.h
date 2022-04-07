@@ -8,28 +8,15 @@
 
 #include <functional>
 
+#include <LobbyContext.h>
+#include <Player.h>
+#include <map>
+
 #include <Game/Randomizers/XoroshiroRandomizer.h>
 #include <Game/Randomizers/SimonRandomizer.h>
 
-struct Game;
-struct GameRules {
-    virtual int get_id(){return -1;}
-
-    virtual void on_init(Game* game){};
-    virtual void on_update(Game* game, int dt) = 0;
-    virtual void on_place(Game* game,int cleared, int combo) = 0;
-    virtual void on_win(Game* game){};
-    virtual void on_lose(Game* game){};
-    virtual int score(Game* game){return 0;}; 
-    virtual bool result(Game* game){return 0;};
-
-    virtual void score_format(int score, char*){};
-
-    virtual bool compare(int score_a, int score_b){
-        return score_a > score_b;
-    }
-};
-
+#include <Game/IGameRules.h>
+#include <Game/IMultiplayerContext.h>
 
 struct Game {
     enum class State {
@@ -69,6 +56,7 @@ struct Game {
     Recorder* demo = 0;
 
     GameRules* rules = nullptr;
+    IMultiplayerContext* context = nullptr;
 
     int time = 0;
     int gravity_rate = 300;
@@ -89,6 +77,7 @@ struct Game {
 
     void Reset(int seed);
     void Update(int dt);
+    void CosmeticUpdate(int dt);
 
     void Events(TetrisEvent* events, int count);
     void Flip();
@@ -111,7 +100,7 @@ struct Game {
 
     // Helper Functions
     int GhostPieceY();
-
+    float GetCreepOffset();
 
     const int INITIAL_PIECE_X = 3;
 };

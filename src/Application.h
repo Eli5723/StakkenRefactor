@@ -41,10 +41,7 @@ struct Application {
     float frame_delay;
 
     // Global Record Related Data
-    Player* local_player = 0;
-
     Input::IController* local_controller;
-
     Identity* local_identity;
 
     int init();

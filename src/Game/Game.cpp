@@ -43,6 +43,7 @@ void Game::Reset(int seed){
   
     creep_timer = 0;
     pending_lines = 0;
+    creeping = false;
 
     board.clear();
 
@@ -97,6 +98,11 @@ void Game::Update(int dt){
 
     if (demo)
         demo->advance(dt);
+}
+
+void Game::CosmeticUpdate(int dt){
+    time += dt;
+    comboTimer -= dt;
 }
 
 
@@ -203,34 +209,37 @@ void Game::HardDrop()
     while (board.checkFit(&heldPiece))
         heldPiece.moveDown();
     heldPiece.moveUp();
-    ApplyHeldPiece();
 
     if (demo)
         demo->registerEvent(TetrisEvent::HardDrop);
+
+    ApplyHeldPiece();
 }
 
 void Game::Creep(){
+    if (demo)
+        demo->registerEvent(TetrisEvent::Creep);
+
     if (heldPiece.y > 0)
         heldPiece.moveUp();
     board.addLine(holeRandomizer.next() % 10);
 
     stats.linesAdded++;
-
-    if (demo)
-        demo->registerEvent(TetrisEvent::Creep);
+    creeping = true;
+    last_creep = time;
 }
 
 void Game::Gravity()
 {
+    if (demo)
+        demo->registerEvent(TetrisEvent::Gravity);
+
     heldPiece.moveDown();
     if (!board.checkFit(&heldPiece))
     {
         heldPiece.moveUp();
         ApplyHeldPiece();
     }
-
-    if (demo)
-        demo->registerEvent(TetrisEvent::Gravity);
 }
 
 
@@ -415,4 +424,9 @@ int Game::GhostPieceY()
     heldPiece.y = oldY;
 
     return ghostY;
+}
+
+float Game::GetCreepOffset()
+{
+    return creeping ? std::min((time - last_creep) / (float)creep_rate, 1.0f) - 1 : 0;
 }

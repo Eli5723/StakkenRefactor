@@ -1,0 +1,21 @@
+// Handles Game events
+IGameRuleset
+    virtual void on_init(Game* game){};
+    virtual void on_update(Game* game, int dt) = 0;
+    virtual void on_place(Game* game,int cleared, int sent) // Checks clears, sends lines
+    virtual void on_topout
+    virtual void on_win(Game* game){}; // Responds to win condition?
+    virtual void on_lose(Game* game){}; // Responds to top-out
+
+
+// Used for solo challenges like sprint where players do not interact 
+IGameChallenge : IGameRuleset
+    virtual int score_calculate(Game* game) // Calculates the current score of the game
+    virtual void score_format(int score, // Writes score information to the provided buffer
+    virtual bool score_compare(int score_a, int score_b) // Compares two scores (Default = a > b)
+
+// Handles Game Output
+IGameContext
+    virtual on_lose(Game* game)
+    virtual on_win(Game* game)
+    virtual send_lines(Game* source)

@@ -1,9 +1,12 @@
 #pragma once
-#include <Lobby.h>
+#include <Game/Game.h>
 
 struct Lobby;
+struct IMultiplayerContext;
+
 struct LobbyContext {
-    Lobby* lobby;
+    IMultiplayerContext* lobby;
+    
     virtual void on_add(){}
     virtual void on_remove(){}
 };

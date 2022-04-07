@@ -11,10 +11,10 @@
 #include <Rendering/RenderGame.h>
 #include <Data/Identity.h>
 
-#include <Lobby.h>
-
 #include <Assets/Sounds.h>
 #include <Input/Input.h>
+
+#include <Game/DemoPlayer.h>
 
 namespace UI {
 
@@ -279,9 +279,15 @@ namespace UI {
     const float GAME_OFFSET = (RenderGame::kPFPDimensions.x + RenderGame::MARGIN);
 
     struct GameViewer : public Node {
-        Game* game;
-        Identity* owner;
-        float scale;
+        Game* game = 0;
+        Identity* owner = 0;
+        float scale = 1;
+
+        GameViewer() {
+            hasStencil = true;
+            clippedContents = true;
+            scale = 1;
+        }
 
         GameViewer(Game* game, Identity* owner) : game(game), owner(owner) {
             hasStencil = true;
@@ -290,15 +296,20 @@ namespace UI {
         }
 
         void stencil() {
+            if (game)
             RenderGame::DrawBoardStencil(position + glm::vec2{ 0,GAME_OFFSET * scale }, scale);
         }
 
         void renderClipped() {
+            if (game)
             RenderGame::DrawGame(position  + glm::vec2{ 0, GAME_OFFSET * scale }, *game, &owner->colorTable, Assets::active_texture, scale);
         }
 
         void render() {
+            if (game)
             RenderGame::DrawGameUI(position  + glm::vec2{ 0, GAME_OFFSET * scale }, *game, &owner->colorTable, Assets::active_texture, scale);
+           
+            if (owner)
             RenderGame::DrawHeader(position, owner->pfp, owner->name, scale);
         }
     };
@@ -347,7 +358,6 @@ namespace UI {
 
         void render();
     };
-
 
     // RenderGame::DrawBoardStencil(pos, scale);
     // RenderGame::DrawGame(pos,*testBoard, &test, Assets::active_texture, scale);

@@ -202,6 +202,8 @@ namespace RenderGame
 
         char textBuffer[75];
         float bpm = (float)stats.piecesPlaced/((float)game.time/60000.0f);
+        bpm += 0.00001f;
+
         float seconds = (float)game.time/1000.0f;
         sprintf(textBuffer,"Time:\n%.2f\nCombo:\n%i (%i)\n Pending:\n%i\nCleared:\n%i", seconds, game.combo, game.stats.maxCombo, game.pending_lines, game.stats.clears); // game.pendingLines
         Renderer::DrawStr(position, .5f * scale, textBuffer, Assets::active_font);
@@ -267,12 +269,14 @@ namespace RenderGame
 
         if (game.state == Game::State::Results)
         {
-        switch (game.result){
-        break; case Game::Result::Win:
-            Renderer::DrawStrC(position + status_offset, 2.0f*scale, "You Win!", Assets::active_font);
-        break; case Game::Result::Lose:
-            Renderer::DrawStrC(position + status_offset, 2.0f*scale, "You Lose!", Assets::active_font);
-        }
+            switch (game.result){
+            break; case Game::Result::Win:
+                Renderer::DrawStrC(position + status_offset, 2.0f*scale, "You Win!", Assets::active_font);
+            break; case Game::Result::Lose:
+                Renderer::DrawStrC(position + status_offset, 2.0f*scale, "You Lose!", Assets::active_font);
+            break; case Game::Result::AFK:
+                Renderer::DrawStrC(position + status_offset, 2.0f*scale, "Afk...!", Assets::active_font);
+            }
         }
     }
 

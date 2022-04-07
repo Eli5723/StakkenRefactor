@@ -1,10 +1,12 @@
 #pragma once
 
-#include <Game/Game.h>
 #include <Data/Identity.h>
+#include <Game/Game.h>
 
+
+struct Game;
 struct Player {
-    Game* game;
-    Identity* identity;
     int id;
+    Identity* identity;
+    Game* game;
 };

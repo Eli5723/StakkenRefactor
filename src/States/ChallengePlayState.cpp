@@ -53,7 +53,7 @@ void ChallengePlayState::init(){
     board->on_win = [record](){
         printf("The challenge was won!\n");
 
-        bool outcome = Challenges::compareRecord(board->rules->get_id(), board->rules->score(board));
+        bool outcome = Challenges::compareRecord(board->rules->get_id(), board->rules->score_calculate(board));
         
         if (outcome){
             printf("New record!\n");

@@ -61,7 +61,7 @@ struct Survivor : GameRules {
             game->creep_timer += creepTime;
         } 
     };
-    void on_place(Game* game,int cleared, int combo){
+    void on_place(Game* game,int cleared, int send){
 
     };
 
@@ -81,6 +81,24 @@ struct Survivor : GameRules {
     }
 };
 
+struct z2sam : GameRules {
+    int get_id(){return 2;}
+    
+    void on_update(Game* game, int dt){
+        
+    };
+    void on_place(Game* game,int cleared, int combo){
+        
+    };
+
+    int score(Game* game){
+        return game->stats.sent;
+    }; 
+
+    void score_format(int score, char* str){
+        sprintf(str,"Lines Sent: %i", score);
+    }
+};
 
 GameRules* getChallenge(int challengeID);
 

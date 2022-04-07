@@ -26,8 +26,7 @@ add_executable (Stakken
     ${PROJECT_SOURCE_DIR}/include/gl3w.c
     ${source_dir}/main.cpp
     ${source_dir}/Application.cpp
-    ${source_dir}/Lobby.cpp
-    
+
     ${source_dir}/States/MenuState.cpp
     ${source_dir}/States/SettingsState.cpp
     ${source_dir}/States/LobbyState.cpp
@@ -60,17 +59,23 @@ add_executable (Stakken
     ${source_dir}/Game/Randomizers/XoroshiroRandomizer.cpp
     ${source_dir}/Game/Randomizers/SimonRandomizer.cpp
 
+    ${source_dir}/Game/DemoPlayer.cpp
+    
     ${source_dir}/Game/Demo.cpp
     ${source_dir}/Game/DemoRecorder.cpp
+
+    ${source_dir}/Game/ClientLobby.cpp
+    ${source_dir}/Game/LocalLobby.cpp
 
     ${source_dir}/Input/InputProfile.cpp
     ${source_dir}/Input/Keyboard.cpp
     ${source_dir}/Input/Input.cpp
     
-
     ${source_dir}/Challenges/Challenges.cpp
 
+    ${source_dir}/Gamemodes/Gamemodes.cpp
 
+    ${source_dir}/Networking/Server.cpp
 )
 
 target_link_libraries(Stakken
@@ -87,3 +92,32 @@ target_link_libraries(Stakken
     EASTL
 )
 target_compile_definitions(Stakken PUBLIC IS_CLIENT)
+
+# Client Target
+add_executable (Server
+    ${source_dir}/Networking/Server.cpp
+)
+
+target_link_libraries(Server
+    dl
+    X11
+    unofficial::enet::enet
+    gflags::gflags
+    EASTL
+)
+target_compile_definitions(Server PUBLIC IS_CLIENT)
+
+# Client Test Target
+add_executable (Client
+    ${source_dir}/Networking/Client.cpp
+)
+
+target_link_libraries(Client
+    dl
+    X11
+    unofficial::enet::enet
+    gflags::gflags
+    EASTL
+)
+target_compile_definitions(Client PUBLIC IS_CLIENT)
+
