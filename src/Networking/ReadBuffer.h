@@ -2,6 +2,7 @@
 #include <types.h>
 #include <string>   
 #include <cstring>
+#include <typeinfo>
 
 namespace Network {
 
@@ -19,6 +20,7 @@ struct ReadBuffer {
     static t Read(){
         t ret = *(t*)&buffer[pos];
         pos += sizeof(t);
+        // printf("Reading %s at %i\n", typeid(t).name(), pos);
         return ret;
     }
 
@@ -37,6 +39,13 @@ struct ReadBuffer {
         pos += len + 1;
         return (char*)&buffer[pos - len - 1];
     }
+
+    // Serializable items should have a static deserialize interface that fills in item information
+    template<typename t>
+    static inline void Deserialize(t& item){
+            t::Deserialize(item);
+    }
+
 };
 
 }

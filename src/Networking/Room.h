@@ -2,17 +2,22 @@
 
 #include <Networking/Client.h>
 
+#include <Networking/ReadBuffer.h>
+#include <Networking/SendBuffer.h>
+
 #include <map>
 #include <string>
 
 namespace Network {
 
 struct Client;
+
+
+
 struct Room {
-    int id;
-    std::string name;
+    RoomInfo info;
 
     std::map<int, Client*> clients;
-}; 
+};
 
 }

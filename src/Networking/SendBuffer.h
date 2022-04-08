@@ -3,11 +3,13 @@
 #include <types.h>
 
 #include <cstring>
-
+#include <Networking/Message.h>
+#include <typeinfo>
+#include <cstdio>
 namespace Network {
 
     struct SendBuffer {
-        static u8* buffer;
+        u8* buffer;
         int pos = 0;
         
         void Reset(){
@@ -18,6 +20,7 @@ namespace Network {
         void Write(t val){
             *(t*)&buffer[pos] = val;
             pos += sizeof(t);
+            // printf("Writing %s (%i) at %i\n", typeid(t).name(), val, pos);
         }
 
         u8* GetBuffer(){
@@ -28,18 +31,23 @@ namespace Network {
             return pos;
         }
 
-        // void Begin(MessageDestination destination, MessageType type){
-        //     pos = 0;
-        //     Write<MessageDestination>(destination);
-        //     Write<MessageType>(type);
-        // }
+        void Begin(Message m){
+            pos = 0;
+            Write<Message>(m);
+        }
 
         void WriteString(const char* str){
             int len = strlen(str);
             memcpy((char*)&buffer[pos], str, len);
             buffer[pos+len+1] = '\0';
 
+            // printf("Writing %s at %i\n", str, pos);
             pos = pos + len + 1;
+        }
+ 
+        template<typename t>
+        inline void Serialize(t& item){
+            item.Serialize(this);
         }
     };
 
