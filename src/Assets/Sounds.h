@@ -20,8 +20,8 @@ struct Sounds {
         Combo14,
         Win,
         Reject,
-        Count,
         Click,
+        Count,
     };
 
     static int enabled;

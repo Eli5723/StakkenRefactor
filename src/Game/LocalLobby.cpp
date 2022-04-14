@@ -28,7 +28,7 @@ void LocalLobby::send_lines(Game* source, int garbage){
         if (player->game == source)
             continue;
 
-        player->game->
+
     }
 
 

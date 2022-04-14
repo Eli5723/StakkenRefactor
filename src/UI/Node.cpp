@@ -44,8 +44,12 @@ void Node::destroy(){
 }
 
 void Node::destroy_recursive(){
-    for (Node* child = children; child; child = child->next)
+    Node* next;
+    for (Node* child = children; child;){
+        next = child->next;
         child->destroy_recursive();
+        child = next;
+    }
 
     destroy();
 }

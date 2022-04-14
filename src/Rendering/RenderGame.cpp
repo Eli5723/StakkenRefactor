@@ -8,6 +8,10 @@ namespace RenderGame
     Settings settings;
     float pixelThickness = 1;
 
+    // Draw the board; Ignore buffer overflows because the only possible consequence is extra overdraw.
+    // [[clang::disable_sanitizer_instrumentation]]
+
+    // __attribute__((clang::disable_sanitizer_instrumentation))
     void DrawBoard(const glm::vec2 &position, Board &board, ColorTable *colorTable, Assets::Texture *texture, float scale)
     {
         float tile_width = TILE_WIDTH * scale;
@@ -19,7 +23,7 @@ namespace RenderGame
             for (int x = 0; x < Board::kWidth; x++)
             {
                 int type = board.tileAt(x, y);
-                if (type != TileType::Empty)
+                if (type != TileType::Empty && type < TileType::Invalid)
                 {
 
                     const glm::vec2 tilePosition = position + glm::vec2{tile_width * x, tile_width * (y - Board::kOverflowRows)};

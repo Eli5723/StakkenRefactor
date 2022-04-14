@@ -22,11 +22,22 @@
 #include <Input/Input.h>
 #include <Game/Demo.h>
 
+#include <Networking/net_client.h>
+#include <Networking/StakkenMSG.h>
+
 const int WINDOW_WIDTH = 1280;
 const int WINDOW_HEIGHT = 720;
 
 Application* Application::instance;
 DemoPlayer* test;
+
+class stakkenclient : public net::client_interface<StakkenMSG> {
+    public:
+    stakkenclient() : net::client_interface<StakkenMSG>() {
+
+    };
+} network_client;
+
 
 int Application::init(){
     instance = this;
@@ -79,6 +90,8 @@ int Application::init(){
 
     // UI::AddToScreen(a);
 
+    // network_client.Connect("127.0.0.1", 60000);
+
     state_set(new MenuState());
     return 0;
 }
@@ -107,6 +120,15 @@ int Application::execute() {
         update(frameDelta,newTime);
         render(frameDelta,newTime);
         Input::Clear();
+
+        if (network_client.IsConnected()){
+        while (!network_client.Incoming().empty()){
+            auto msg = network_client.Incoming().pop_front().msg;
+            int text;
+
+            msg >> text;
+        }
+    }
 
         end = SDL_GetPerformanceCounter();
         float elapsedMicroseconds = (end - start) / (float)SDL_GetPerformanceFrequency() * 1000000.0f;
@@ -211,6 +233,11 @@ void Application::events(const SDL_Event& event){
             
             if (!event.key.repeat)
                 Input::KeyEvent(event.key);
+
+            if (event.key.keysym.sym == SDLK_F4)
+                network_client.Connect("127.0.0.1",60000);
+            if (event.key.keysym.sym == SDLK_F3)
+                network_client.Disconnzect();
 
 
             if (event.key.keysym.sym == SDLK_F5)

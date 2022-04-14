@@ -3,6 +3,9 @@
 #include <Player.h>
 #include <Game/Game.h>
 
+#include <map>
+
+struct Player;
 struct IMultiplayerContext {
     LobbyContext* context = 0;
     std::map<int, Player*> players;

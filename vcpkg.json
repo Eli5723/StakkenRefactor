@@ -28,6 +28,9 @@
         },
         {
             "name": "gflags"
+        },
+        {
+            "name": "asio"
         }
     ]
 }

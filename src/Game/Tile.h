@@ -13,7 +13,8 @@ enum TileType : Tile {
 	Z,
 	S,
 	I,
-	Garbage
+	Garbage,
+	Invalid
 };
 
 using Connection = u8;

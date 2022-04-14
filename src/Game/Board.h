@@ -29,7 +29,7 @@ struct Board {
 	Board();
 	~Board();
 
-	inline Tile tileAt(int x, int y) { return rows[y]->contents[x]; };
+	inline Tile tileAt(int x, int y) {return rows[y]->contents[x]; };
 	inline Connection connectionAt(int x, int y){ return rows[y]->connections[x]; };
 
 	int ApplyPiece(Piece* piece);
