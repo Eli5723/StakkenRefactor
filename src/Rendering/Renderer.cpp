@@ -607,6 +607,88 @@ void Renderer::DrawStr(const glm::vec2& position,float scale, const std::string&
 	}
 }
 
+void Renderer::DrawStrHide(const glm::vec2& position,float scale, const std::string& str, Assets::Font* font, const glm::vec4& color) {
+	if (!font)
+		return;
+
+	//If we run out of indices or textures slots, draw everything and reset the buffers
+	if (s_Data.IndexCount + str.length()*6 >= MaxIndexCount || s_Data.TextureSlotIndex > 31) {
+		EndBatch();
+		Flush();
+		BeginBatch();
+	}
+	
+	//Find the first open texture slot and insert the texture
+	float textureIndex = 0.0f;
+	for (uint32_t i = 1; i < s_Data.TextureSlotIndex; i++) {
+		if (s_Data.TextureSlots[i] == font->atlasId) {
+			textureIndex = (float)i;
+			break;
+		}
+	}
+
+	if (textureIndex == 0.0f) {
+		textureIndex = (float)s_Data.TextureSlotIndex;
+		s_Data.TextureSlots[(int)textureIndex] =  font->atlasId;
+		s_Data.TextureSlotIndex++;
+	}
+
+	//Queue a quad for each 
+
+	const float kMargin = 0;
+	float penX = kMargin;
+	float penY = font->lineHeight * scale;
+	u32 len = str.length();
+
+	for (u32 i = 0; i < len; i++) {
+
+		char charCode = str[i];
+
+		if (charCode == '\n') {
+			penX = kMargin;
+			penY += font->lineHeight * scale;
+			continue;
+		} else {
+			charCode = '*';
+		}
+
+		Assets::Font::Glyph& glyph = font->glyphs[(int)charCode];
+
+		// TODO: fix arbitrary offset
+		s_Data.QuadBufferPtr->position = glm::vec3(position.x + penX, position.y + penY, 0) + glm::vec3(0,glyph.bearing.y*scale, 0);
+		s_Data.QuadBufferPtr->color = color;
+		s_Data.QuadBufferPtr->texCoords = glyph.leftTop;
+		s_Data.QuadBufferPtr->texIndex = textureIndex;
+		s_Data.QuadBufferPtr->view = s_Data.currentView;
+		s_Data.QuadBufferPtr++;
+
+		s_Data.QuadBufferPtr->position = glm::vec3(position.x + penX + glyph.size.x * scale, penY + position.y, 0) + glm::vec3(0,glyph.bearing.y*scale, 0);
+		s_Data.QuadBufferPtr->color = color;
+		s_Data.QuadBufferPtr->texCoords = glyph.rightTop;
+		s_Data.QuadBufferPtr->texIndex = textureIndex;
+		s_Data.QuadBufferPtr->view = s_Data.currentView;
+		s_Data.QuadBufferPtr++;
+
+		s_Data.QuadBufferPtr->position = glm::vec3(position.x + penX + (glyph.size.x * scale), penY + position.y + glyph.size.y * scale, 0) + glm::vec3(0,glyph.bearing.y*scale, 0);
+		s_Data.QuadBufferPtr->color = color;
+		s_Data.QuadBufferPtr->texCoords = glyph.rightBottom;
+		s_Data.QuadBufferPtr->texIndex = textureIndex;
+		s_Data.QuadBufferPtr->view = s_Data.currentView;
+		s_Data.QuadBufferPtr++;
+
+		s_Data.QuadBufferPtr->position = glm::vec3(position.x + penX, penY + position.y + glyph.size.y * scale, 0) + glm::vec3(0,glyph.bearing.y*scale, 0);
+		s_Data.QuadBufferPtr->color = color;
+		s_Data.QuadBufferPtr->texCoords = glyph.leftBottom;
+		s_Data.QuadBufferPtr->texIndex = textureIndex;
+		s_Data.QuadBufferPtr->view = s_Data.currentView;
+		s_Data.QuadBufferPtr++;
+
+		s_Data.IndexCount += 6;
+		penX += glyph.advance * scale;
+
+	}
+}
+
 void Renderer::DrawStrC(const glm::vec2& position,float scale, const std::string &str, Assets::Font* font, const glm::vec4& color) {
 	if (!font)
 		return;
@@ -765,6 +847,41 @@ glm::vec2 Renderer::StrSize(float scale, const std::string& str, Assets::Font* f
 			penX = 0;
 			penY += font->lineHeight * scale + font->lineGap * scale;
 			continue;
+		}
+
+		Assets::Font::Glyph& glyph = font->glyphs[(int)charCode];
+		penX += glyph.advance * scale;
+	}
+
+	if (penX > maxX)
+			maxX = penX;
+
+	return glm::vec2{maxX,penY};
+}
+
+
+glm::vec2 Renderer::StrSizeHidden(float scale, const std::string& str, Assets::Font* font) {
+	if (!font)
+		return {0,0};
+
+	//Queue a quad for each 
+	float maxX = 0;
+	float penX = 0;
+	float penY = font->lineHeight * scale - font->descent * scale;
+	u32 len = str.length();
+
+	for (u32 i = 0; i < len; i++) {
+		char charCode = str[i];
+
+		if (charCode == '\n') {
+			if (penX > maxX)
+				maxX = penX;
+
+			penX = 0;
+			penY += font->lineHeight * scale + font->lineGap * scale;
+			continue;
+		} else {
+			charCode = '*';
 		}
 
 		Assets::Font::Glyph& glyph = font->glyphs[(int)charCode];

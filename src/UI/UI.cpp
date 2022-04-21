@@ -79,6 +79,7 @@ struct HoverBox {
 void Init(const glm::vec2& resolution){
     data.root = new Node;
     data.root->size = resolution;
+    ClearState();
 }
 
 void Resize(const glm::vec2& resolution){

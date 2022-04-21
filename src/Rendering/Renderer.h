@@ -37,6 +37,7 @@ public:
 
 	static void DrawStr(const glm::vec2& position,float scale, const std::string_view str, Assets::Font* font);
 	static void DrawStr(const glm::vec2& position,float scale, const std::string& str, Assets::Font* font, const glm::vec4& color);
+	static void DrawStrHide(const glm::vec2& position,float scale, const std::string& str, Assets::Font* font, const glm::vec4& color);
 	static void DrawStrC(const glm::vec2& position,float scale, const std::string& str , Assets::Font* font, const glm::vec4& color = glm::vec4{1,1,1,1});
 
 	static inline void DrawStrBacked(const glm::vec2& position,float scale, const std::string& str , Assets::Font* font, const glm::vec4& color = glm::vec4{1,1,1,1}){
@@ -45,6 +46,7 @@ public:
 	}
 
 	static glm::vec2 StrSize(float scale, const std::string& str, Assets::Font* font);
+	static glm::vec2 StrSizeHidden(float scale, const std::string& str, Assets::Font* font);
 
 	static void DrawNeedle(const glm::vec2& origin, float radius, float angle);
 

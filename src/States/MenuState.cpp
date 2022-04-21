@@ -1,6 +1,6 @@
 #include <States/MenuState.h>
 
-#include <States/LobbyState.h>
+#include <States/LoginState.h>
 #include <States/SettingsState.h>
 #include <States/ChallengeSelectState.h>
 #include <UI/UI.h>
@@ -10,7 +10,7 @@ UI::Node* logo;
 
 void MenuState::init(){
     UI::Node* button1 = new UI::TextButton("Online", [](int x, int y){
-        Application::instance->state_set(new LobbyState());
+        Application::instance->state_set(new LoginState());
     });
 
     UI::Node* button2 = new UI::TextButton("Singleplayer", [](int x, int y){

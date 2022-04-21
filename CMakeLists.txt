@@ -33,6 +33,7 @@ add_executable (Stakken
     ${source_dir}/States/LobbyState.cpp
     ${source_dir}/States/ChallengeSelectState.cpp
     ${source_dir}/States/ChallengePlayState.cpp
+    ${source_dir}/States/LoginState.cpp
     
     ${source_dir}/Assets/Assets.cpp
     ${source_dir}/Assets/Texture.cpp
