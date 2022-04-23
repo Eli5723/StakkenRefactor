@@ -52,8 +52,14 @@ add_executable (Stakken
 
     ${source_dir}/UI/Node.cpp
     ${source_dir}/UI/UI.cpp
-    ${source_dir}/UI/NodeTypes.cpp
     
+
+    ${source_dir}/UI/Widgets/NumericInput.cpp
+    ${source_dir}/UI/Widgets/Input.cpp
+    ${source_dir}/UI/Widgets/HiddenInput.cpp
+    ${source_dir}/UI/Widgets/Checkbox.cpp
+    ${source_dir}/UI/Widgets/PieceEditor.cpp
+    ${source_dir}/UI/Widgets/ColorRotationEditor.cpp
 
     ${source_dir}/Game/Game.cpp
     ${source_dir}/Game/Board.cpp

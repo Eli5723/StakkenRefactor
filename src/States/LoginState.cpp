@@ -1,5 +1,3 @@
-#pragma once
-
 #include <States/LoginState.h>
 
 #include <Application.h>
