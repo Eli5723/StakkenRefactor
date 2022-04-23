@@ -128,10 +128,16 @@ bool InputCapture(const SDL_TextInputEvent& event){
 }
 
 void SetFocus(Node* toFocus){
+    if (data.focus)
+        data.focus->loseFocus();
+
     data.focus = toFocus;
 }
 
 void ClearFocus(){
+    if (data.focus)
+        data.focus->loseFocus();
+
     data.focus = 0;
     SDL_StopTextInput();
 }

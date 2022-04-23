@@ -16,6 +16,7 @@ struct HiddenInput : public Node {
     ~HiddenInput();
 
     void render();
+    void loseFocus(){editing=false;};
 };
 
 }

@@ -25,10 +25,12 @@ struct Node {
     virtual void stencil(){};
     bool hasStencil = false;
 
+    // Callbacks
     std::function<void(int,int)> clickCallback;
     std::function<void(const SDL_KeyboardEvent&)> keyCallback;
     std::function<void(const SDL_TextInputEvent&)> textCallback;
     std::function<void(const SDL_MouseMotionEvent&)> dragCallback;
+    virtual void loseFocus(){};
 
     virtual ~Node() = default;
 

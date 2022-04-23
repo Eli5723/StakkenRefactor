@@ -16,6 +16,7 @@ struct Input : public Node {
     ~Input();
 
     void render();
+    void loseFocus(){editing=false;};
 };
 
 }

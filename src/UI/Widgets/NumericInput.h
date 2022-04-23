@@ -19,6 +19,8 @@ namespace UI {
         inline void SetValue(int toSet);
 
         void render();
+
+        void loseFocus(){editing=false;};
     };
 
 }
