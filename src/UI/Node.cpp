@@ -54,6 +54,17 @@ void Node::destroy_recursive(){
     destroy();
 }
 
+void Node::destroy_children(){
+    Node* next;
+    for (Node* child = children; child;){
+        next = child->next;
+        child->destroy_recursive();
+        child = next;
+    }
+
+    children = nullptr;
+}
+
 // Utility
 Node* const Node::last(){
     Node* child = children;

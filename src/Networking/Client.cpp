@@ -12,12 +12,13 @@
 #include <SFMLHelper.h>
 
 #include <Application.h>
+
 #include <States/LobbyState.h>
+#include <States/RoomSelectState.h>
 
 namespace Network {
 
 bool running = false;
-
 
 // Network Members
 ENetAddress address;
@@ -33,6 +34,13 @@ static int ping;
 // Network State
 PlayerInfo localPlayer;
 
+std::mutex players_mut;
+bool players_dirty = false;
+std::unordered_map<u32, PlayerInfo> players;
+
+bool rooms_dirty = false;
+std::mutex rooms_mut;
+std::unordered_map<u32, RoomInfo> rooms;
 
 // Packet Sending
 rigtorp::SPSCQueue<sf::Packet> async_queue(10);
@@ -76,26 +84,110 @@ void send_room_request(const std::string& name){
 }
 
 // Packet Handling
+void OnLoginSuccess(sf::Packet& packet){
+    packet >> localPlayer.session;
+    packet >> localPlayer.id;
+    packet >> localPlayer.roles;
+    packet >> localPlayer.name;
+
+    players[localPlayer.session] = localPlayer;
+
+    Application::instance->state_set(new RoomSelectState());
+    printf("Successfully Logged in as %s (%i | %i)\n", localPlayer.name.c_str(), localPlayer.id, localPlayer.roles);
+}
+
+// Packet Handling
+void OnPlayerConnect(sf::Packet& packet){
+    std::scoped_lock m(players_mut);
+
+    PlayerInfo playerInfo;
+    packet >> playerInfo.session;
+    packet >> playerInfo.id;
+    packet >> playerInfo.roles;
+    packet >> playerInfo.name;
+    players[playerInfo.session] = playerInfo;
+
+    players_dirty = true;
+}
+
+// Packet Handling
+void OnPlayerDisconnect(sf::Packet& packet){
+    std::scoped_lock m(players_mut);
+    
+    u32 session;
+    packet >> session;
+    
+    players.erase(session);
+    players_dirty = true;
+}
+
+void OnPlayerList(sf::Packet& packet){
+    std::scoped_lock m(players_mut);
+    
+    u8 count;
+    packet >> count;
+    
+    while (count--){
+        PlayerInfo playerInfo;
+        packet >> playerInfo.session;
+        packet >> playerInfo.id;
+        packet >> playerInfo.roles;
+        packet >> playerInfo.name;
+        players[playerInfo.session] = playerInfo;
+    }
+
+    players_dirty = true;
+    puts("Successfully updated online player list.");
+}
+
+// Packet Handling
+void OnRoomList(sf::Packet& packet){
+    std::scoped_lock m(rooms_mut);
+
+    u8 count;
+    packet >> count;
+    
+    while (count--){
+        RoomInfo roomInfo;
+        packet >> roomInfo.session;
+        packet >> roomInfo.name;
+        rooms[roomInfo.session] = roomInfo;
+    }
+
+    rooms_dirty = true;
+    puts("Successfully updated room list.");
+}
+
 void OnData(sf::Packet& packet){
     Message m;
 
     packet >> m;
 
+    printf("Message: %c\n", ((char)m + 'a'));
+
     switch (m) {
         case Message::LOGIN_FAIL:
+            enet_peer_reset(server);
             puts("Login failed!");
         break;
 
         case Message::LOGIN_SUCCESS:
-            packet >> localPlayer.id;
-            packet >> localPlayer.roles;
-            packet >> localPlayer.name;
-
-            Application::instance->state_set(new LobbyState);
-
-            printf("Successfully logged in as %s (%i | %i)\n", localPlayer.name.c_str(), localPlayer.id, localPlayer.roles);
+            OnLoginSuccess(packet);
+            OnPlayerList(packet);
+            OnRoomList(packet);
         break;
-    
+
+        case Message::PLAYER_CONNECT:
+            puts("Recieved new player.");
+            OnPlayerConnect(packet);
+        break;
+
+        case Message::PLAYER_DISCONNECT:
+            puts("A player has disconnected.");
+            OnPlayerDisconnect(packet);
+        break;
+
+
         case Message::ROOM_CREATE:
             puts("Login succeeded!");
         break;        
@@ -108,14 +200,6 @@ void OnData(sf::Packet& packet){
             puts("Recieved Invalid Message from server.");
         break;
     }
-}
-
-void OnLoginSuccess(sf::Packet& packet){
-    packet >> localPlayer.id;
-    packet >> localPlayer.roles;
-    packet >> localPlayer.name;
-
-    printf("Successfully Logged in as %s (%i | %i)\n");
 }
 
 void service(){
@@ -143,7 +227,7 @@ void service(){
                     OnData(incoming);
                     enet_packet_destroy (event.packet);
 
-                } break;
+            } break;
 
                 case ENET_EVENT_TYPE_DISCONNECT:
                     puts("Lost Connection!");

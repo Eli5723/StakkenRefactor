@@ -211,7 +211,7 @@ void Application::events(const SDL_Event& event){
 
         case SDL_KEYDOWN:{
             // if (ClientKeyEvent(event.key))
-            //     return;
+            //     return;      
 
 
             if (state_stack.back()->key_capture(event.key))
@@ -224,8 +224,6 @@ void Application::events(const SDL_Event& event){
             if (!event.key.repeat)
                 Input::KeyEvent(event.key);
 
-            if (event.key.keysym.sym == SDLK_F4)
-                Network::connect();
             // if (event.key.keysym.sym == SDLK_F3)
             //     network_client.Disconnect();
 

@@ -10,6 +10,9 @@ enum class Message : u8 {
 
     LOGIN_SUCCESS,
     LOGIN_FAIL,
+
+    PLAYER_CONNECT,
+    PLAYER_DISCONNECT,
     
     ROOM_LIST,
     ROOM_CREATE,

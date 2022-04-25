@@ -25,6 +25,8 @@ void InitiateLogin(){
     puts(usernameInput->value);
     puts(passwordInput->value);
 
+    Network::connect();
+
     if (guestLogin){
         std::string nickname(usernameInput->value);
         Network::send_guest_request(nickname);

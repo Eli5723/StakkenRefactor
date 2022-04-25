@@ -40,6 +40,7 @@ struct Node {
     void detatch();
     void destroy();
     void destroy_recursive();
+    void destroy_children();
 
     // Utility
     Node* const last();

@@ -1,8 +1,5 @@
 #include <Networking/Server.h>
 
-#include <Networking/Peer.h>
-#include <Networking/Room.h>
-
 #include <Networking/Message.h>
 
 #include <rigtorp/SPSCQueue.h>
@@ -15,16 +12,20 @@
 #include <sstream>
 #include <chrono>
 #include <thread>
+#include <unordered_map>
 
 
 namespace Network {
 
-std::map<int, Room*> rooms;
-std::map<int, Peer*> clients;
+std::unordered_map<u32, Room*> rooms;
+std::unordered_map<u32, Client*> clients;
+
+int sesion_inc;
 
 ENetAddress address;
 ENetHost * server;
 
+// Sending
 rigtorp::SPSCQueue<sf::Packet> async_queue(10);
 
 void send_async(sf::Packet&& packet){
@@ -37,90 +38,118 @@ void send(const sf::Packet& packet, ENetPeer* peer, const u8 channel = 0)
   enet_peer_send(peer, channel, epacket);
 }
 
-// // Rooms
-// Room* room_create(const std::string name, int creatorId, int gamemode){
-//     Room* newRoom = new Room;
-//     newRoom->info.name = name;
-//     newRoom->info.id = rand(); // TODO: Replace
+void sendExcept(const sf::Packet& packet, ENetPeer* peer, const u8 channel = 0)
+{
+    for (auto& c : clients){
+        auto& client = c.second;
 
-//     printf("ROOM | create | %s\n", newRoom->info.name.c_str());
+        if (client->socket != peer){
+            ENetPacket* epacket = enet_packet_create(packet.getData(), packet.getDataSize(), ENET_PACKET_FLAG_RELIABLE);
+            enet_peer_send(client->socket, channel, epacket);
+        }
+    }
+}
 
-//     rooms[newRoom->info.id] = newRoom;
-//     return newRoom;
-// }
-
-// void room_remove(Room* room){
-//     rooms.erase(room->info.id);
-
-//     printf("ROOM | Remove | %s\n", room->info.name.c_str());
-
-//     delete room;
-// }
-
-// // Clients
-// Peer* client_create(const Profile& profile){
-//     Peer* newClient = new Peer;
-//     newClient->profile = profile;
-//     newClient->id = rand(); // TODO: Replace
-//     printf("Peer | Login | %s\n", newClient->profile.name.c_str());
+// Encoding Helpers
+void EncodePlayerList(sf::Packet& pk){
+    u8 size = clients.size();
     
-//     clients[newClient->id] = newClient;
-//     return newClient;
-// }
+    pk << size;
 
-// Peer* client_create_guest(const std::string_view& name){
-//     Peer* newClient = new Peer;
-//     newClient->id = rand(); // TODO: Replace
-//     // newClient->profile.id = -1;
-//     // newClient->profile.roles = -1;
-//     // newClient->profile.name = name;
+    for (const auto& player : clients){
+        player.second->Encode(pk);
+    }
+}
 
-//     printf("CLIENT | Login | %s (Guest)\n", newClient->profile.name.c_str());
+void EncodeRoomList(sf::Packet& pk){
+    u8 size = rooms.size();
 
-//     clients[newClient->id] = newClient;
-//     return newClient;
-// }
+    pk << size;
 
-// void client_remove(Client* client){
-//     clients.erase(client->id);
+    for (const auto& room : rooms){
+        room.second->Encode(pk);
+    }
+}
 
-//     // TODO: Remove Client from room
-//     printf("CLIENT | Disconnect | %s\n", client->profile.name.c_str());
-//     delete client;
-// }
+u32 session_inc = 0;
+u32 GenerateSessionID(){
+    u32 id = sesion_inc++;
+    
+    while (clients.find(id) != clients.end())
+        id = session_inc++;
 
-// Broadcasting
-// void room_list(SendBuffer& buffer){
-//     buffer.Write<int>(rooms.size());
+    return session_inc++;
+}
 
-//     for (const auto [id, room] : rooms){
-//         buffer.Serialize<RoomInfo>(room->info);
-//     }
-// }
+// Recieving
+void OnLoginGuest(ENetPeer* peer, sf::Packet& packet){
+    std::string nickname;
+    packet >> nickname;
 
-// void player_list(SendBuffer& buffer){
-//     buffer.Write<int>(clients.size());
+    Client* client = new  Client;
 
-//     for (const auto [id, client] : clients){
-//         buffer.Serialize<Profile>(client->profile);
-//     }
-// }
+    client->session = GenerateSessionID();
+    client->id = -1;
+    client->name = nickname;
+    client->roles = Roles::GUEST;
+    client->socket = peer;
+    peer->data = client;
 
+    clients[client->session] = client;
 
-// void send_login_reject(SendBuffer& sendBuffer, ENetPeer* peer, std::string reason){
-//     sendBuffer.Begin(Message::LOGIN_FAIL);
-//     sendBuffer.WriteString("User accounts have not been implemeted yet.");
-//     send_buffer(peer, sendBuffer);
-//     sendBuffer.Reset();
-// }
+    // Inform Client that login was successful, send room and player list
+    sf::Packet pk;
+    pk << Message::LOGIN_SUCCESS;
+    client->Encode(pk);
+    EncodePlayerList(pk);
+    EncodeRoomList(pk);
+    send(pk, peer);
 
-// void send_login_success(SendBuffer& sendBuffer, ENetPeer* peer){
-//     sendBuffer.Begin(Message::LOGIN_SUCCESS);
-//     room_list(sendBuffer);
-//     player_list(sendBuffer);
-//     send_buffer(peer, sendBuffer);
-// }
+    // Inform Other Clients
+    sf::Packet pk2;
+    pk2 << Message::PLAYER_CONNECT;
+    client->Encode(pk2);
+    sendExcept(pk2, client->socket);
 
+    printf("Got guest login: %s\n", nickname.c_str());
+}
+
+void OnLoginAccount(ENetPeer* peer, sf::Packet& packet){
+    std::string username;
+    std::string password;
+
+    packet >> username;
+    packet >> password;
+
+    Client* client = new  Client;
+    // TODO: add proper accounts
+    client->session = GenerateSessionID();
+    client->id = -1;
+    client->name = username;
+    client->roles = Roles::GUEST;
+    client->socket = peer;
+    peer->data = client;
+
+    clients[client->session] = client;
+
+    // Inform Client
+    sf::Packet pk;
+    
+    // Inform Client that login was successful, send room and player list
+    pk << Message::LOGIN_SUCCESS;
+    client->Encode(pk);
+    EncodePlayerList(pk);
+    EncodeRoomList(pk);
+    send(pk, peer);
+
+    // Inform Other Clients
+    sf::Packet pk2;
+    pk2 << Message::PLAYER_CONNECT;
+    client->Encode(pk2);
+    sendExcept(pk2, client->socket);
+
+    printf("Got login: %s | %s\n", username.c_str(), password.c_str());
+}
 
 // Packet Handling
 void OnData(ENetPeer* peer, sf::Packet& packet){
@@ -130,58 +159,13 @@ void OnData(ENetPeer* peer, sf::Packet& packet){
 
     switch (m) {
 
-           case Message::LOGIN_GUEST: {
-                std::string nickname;
-                packet >> nickname;
+        case Message::LOGIN_GUEST: {
+            OnLoginGuest(peer,packet);
+        } break;
 
-                Client* client = new  Client;
-
-                client->id = -1;
-                client->name = nickname;
-                client->roles = Roles::GUEST;
-                client->socket = peer;
-                peer->data = client;
-
-                // Inform Client
-                sf::Packet pk;
-               
-                pk << Message::LOGIN_SUCCESS;
-                pk << client->id;
-                pk << client->roles;
-                pk << client->name;
-
-                send(pk, peer);
-
-                printf("Got guest login: %s\n", nickname.c_str());
-            } break;
-
-            case Message::LOGIN_ACCOUNT: {
-                std::string username;
-                std::string password;
-
-                packet >> username;
-                packet >> password;
-
-                Client* client = new  Client;
-                // TODO: add accounts
-                client->id = -1;
-                client->name = username;
-                client->roles = Roles::GUEST;
-                client->socket = peer;
-                peer->data = client;
-
-                // Inform Client
-                sf::Packet pk;
-               
-                pk << Message::LOGIN_SUCCESS;
-                pk << client->id;
-                pk << client->roles;
-                pk << client->name;
-
-                send(pk, peer);
-
-                printf("Got login: %s | %s\n", username.c_str(), password.c_str());
-            } break;
+        case Message::LOGIN_ACCOUNT: {
+            OnLoginGuest(peer,packet);
+        } break;
     
         default:
             puts("Recieved Invalid Message from client.");
@@ -220,11 +204,22 @@ void service(){
             } break;
 
             case ENET_EVENT_TYPE_DISCONNECT: {
+                // Remove Session and destroy object
                 Client* client = (Client*)(event.peer->data);
-
-                printf("User has disconnected: %s\n", client->name.c_str());
-                delete client;
                 
+                if (!client)
+                    return;
+                
+                printf("Client %s (%i,%i) disconnected.\n", client->name.c_str(), client->id, client->roles);
+
+                // Inform other clients
+                sf::Packet pk;
+                pk << Message::PLAYER_DISCONNECT;
+                pk << client->session;
+                sendExcept(pk, client->socket);
+
+                clients.erase(client->session);
+                delete client;
             } break;
         }}
         auto end = std::chrono::high_resolution_clock::now();
