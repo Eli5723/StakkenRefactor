@@ -1,23 +1,18 @@
 #pragma once
 
-#include <Networking/Client.h>
+#include <Networking/Peer.h>
 
-#include <Networking/ReadBuffer.h>
-#include <Networking/SendBuffer.h>
 
 #include <map>
 #include <string>
 
 namespace Network {
 
-struct Client;
-
-
+struct Peer;
 
 struct Room {
-    RoomInfo info;
 
-    std::map<int, Client*> clients;
+    std::map<int, Peer*> clients;
 };
 
 }

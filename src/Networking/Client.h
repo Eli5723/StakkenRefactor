@@ -1,22 +1,12 @@
 #pragma once
 
-#include <Networking/Room.h>
-#include <Networking/Profile.h>
-
 #include <string>
-#include <enet/enet.h>
 
 namespace Network {
 
-struct Room;
+void send_login_request(const std::string& username, const std::string& password);
+void send_guest_request(const std::string& nickname);
 
-struct Client {
-    ENetPeer* peer;
-
-    int id;
-    Profile profile;
-
-    Room* room;
-};
+void connect();
 
 }

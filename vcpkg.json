@@ -30,7 +30,7 @@
             "name": "gflags"
         },
         {
-            "name": "asio"
+            "name": "sfml"
         }
     ]
 }

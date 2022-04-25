@@ -22,6 +22,11 @@
 #include <Input/Input.h>
 #include <Game/Demo.h>
 
+#include <filesystem>
+#include <location.h>
+
+#include <Networking/Client.h>
+
 // #include <LocklessQueue.h>
 
 const int WINDOW_WIDTH = 1280;
@@ -58,6 +63,9 @@ int Application::init(){
     resolution = {WINDOW_WIDTH, WINDOW_HEIGHT};
     Renderer::Init(resolution);
     ScreenQuad::Init();
+
+    // Set the working Directory to the executable location before attempting to load assets 
+    std::filesystem::current_path(Location::ExecutablePath());
 
     Assets::Init();
     Assets::active_shader = Assets::bgShaders.get("./resources/shaders/Ocean.frag");
@@ -216,8 +224,8 @@ void Application::events(const SDL_Event& event){
             if (!event.key.repeat)
                 Input::KeyEvent(event.key);
 
-            // if (event.key.keysym.sym == SDLK_F4)
-            //     network_client.Connect("127.0.0.1",60000);
+            if (event.key.keysym.sym == SDLK_F4)
+                Network::connect();
             // if (event.key.keysym.sym == SDLK_F3)
             //     network_client.Disconnect();
 

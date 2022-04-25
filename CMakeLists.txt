@@ -16,9 +16,10 @@ find_package(unofficial-enet CONFIG REQUIRED)
 find_package(SDL2 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(sdl2-mixer CONFIG REQUIRED)
-find_package(EASTL CONFIG REQUIRED)
+# find_package(EASTL CONFIG REQUIRED)
 find_package(gflags CONFIG REQUIRED)
 find_package(Vorbis CONFIG REQUIRED)
+find_package(SFML 2.5 COMPONENTS network REQUIRED)
 
 include_directories("${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src")
 
@@ -82,6 +83,9 @@ add_executable (Stakken
     ${source_dir}/Challenges/Challenges.cpp
 
     ${source_dir}/Gamemodes/Gamemodes.cpp
+
+    ${source_dir}/Networking/Client.cpp
+
 )
 
 target_link_libraries(Stakken
@@ -95,7 +99,7 @@ target_link_libraries(Stakken
     glm::glm
     gflags::gflags
     Vorbis::vorbis Vorbis::vorbisenc Vorbis::vorbisfile
-    EASTL
+    sfml-network
 )
 target_compile_definitions(Stakken PUBLIC IS_CLIENT)
 
@@ -109,9 +113,9 @@ target_link_libraries(Server
     X11
     unofficial::enet::enet
     gflags::gflags
-    EASTL
+    sfml-network
 )
-target_compile_definitions(Server PUBLIC IS_CLIENT)
+target_compile_definitions(Server PUBLIC IS_SERVER)
 
 # Client Test Target
 add_executable (Client
@@ -123,7 +127,7 @@ target_link_libraries(Client
     X11
     unofficial::enet::enet
     gflags::gflags
-    EASTL
+    sfml-network
 )
 target_compile_definitions(Client PUBLIC IS_CLIENT)
 

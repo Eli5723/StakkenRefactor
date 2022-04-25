@@ -1,22 +1,22 @@
-#include <Networking/ReadBuffer.h>
-#include <Networking/SendBuffer.h>
+
 #include <Networking/Message.h>
-
 #include <enet/enet.h>
-
-#include <Networking/Profile.h>
-
 #include <iostream>
 #include <chrono>
 
 #include <thread>
-#include <queue>
+#include <mutex>
+#include <rigtorp/SPSCQueue.h>
+
+#include <SFMLHelper.h>
 
 namespace Network {
 
+bool running = false;
+
 ENetAddress address;
 ENetHost* client;
-ENetPeer* peer;
+ENetPeer* server;
 
 static int server_time;
 static int server_time_diff;
@@ -24,81 +24,105 @@ static int ping_sent;
 static int ping_recieved;
 static int ping;
 
-u8 buffer[2048];
+// Packet Sending
+rigtorp::SPSCQueue<sf::Packet> async_queue(10);
 
-std::mutex rooms_mutex;
-std::queue<RoomInfo> rooms;
+void send_async(sf::Packet&& packet){
+    async_queue.push(std::move(packet));
+}
 
-std::mutex profiles_mutex;
-std::queue<Profile> profiles;
+void send(const sf::Packet& packet, const u8 channel = 0)
+{
+  ENetPacket* epacket = enet_packet_create(packet.getData(), packet.getDataSize(), ENET_PACKET_FLAG_RELIABLE);
+  enet_peer_send(server, channel, epacket);
+}
 
-// Recieving Messages 
-void update_room_list(){
-    rooms_mutex.lock();
+void send_login_request(const std::string& username, const std::string&  password){
+    sf::Packet packet;
 
-    int count = ReadBuffer::Read<int>();
-    printf("Got %i rooms.\n", count);
+    packet << Message::LOGIN_ACCOUNT;
+    packet << username;
+    packet << password;
+
+    async_queue.push(packet);
+}
+
+void send_guest_request(const std::string& nickname){
+    sf::Packet packet;
+
+    packet << Message::LOGIN_GUEST;
+    packet << nickname;
+
+    async_queue.push(packet);
+}
+
+// Packet Handling
+void OnData(sf::Packet& packet){
+    Message m;
+
+    packet >> m;
+
+    switch (m) {
+        case Message::LOGIN_FAIL:
+            puts("Login failed!");
+        break;
+
+        case Message::LOGIN_SUCCESS:
+            puts("Login succeeded!");
+        break;
     
-    for (int i=0; i < count; i++){
-        RoomInfo room;
-        ReadBuffer::Deserialize<RoomInfo>(room);
-        rooms.push(room);
-
-        printf("%s (%i)\n", room.name.c_str(), room.id);
+        default:
+            puts("Recieved Invalid Message from server.");
+        break;
     }
-    putc('\n',stdout);
-
-    rooms_mutex.unlock();
 }
- 
-void update_player_list(){
 
-    profiles_mutex.lock();
-    int count = ReadBuffer::Read<int>();
-    printf("Got %i players.\n", count);
-    
-    for (int i=0; i < count; i++){
-        Profile profile;
-        ReadBuffer::Deserialize<Profile>(profile);
-        profiles.push(profile);
+void service(){
 
-        printf("%s (%i:%i)\n", profile.name.c_str(), profile.id, profile.roles);
+    ENetEvent event{};
+
+    while (true){
+        while (async_queue.front()){
+            auto& packet = *(async_queue.front());
+            send(packet);
+            puts("sendin'");
+            async_queue.pop();
+        }
+
+        while (enet_host_service(client, &event, 0) > 0){
+            // Send all queued packets
+
+
+            // Handle incoming messages
+            sf::Packet incoming;
+            
+            switch (event.type){
+                case ENET_EVENT_TYPE_RECEIVE:{
+                    sf::Packet incoming;
+                    incoming.append(event.packet->data,event.packet->dataLength);
+                    OnData(incoming);
+                    enet_packet_destroy (event.packet);
+
+                } break;
+
+                case ENET_EVENT_TYPE_DISCONNECT:
+                    puts("Lost Connection!");
+                    // TODO: Implement
+                break;
+            }
+        }
     }
-    putc('\n',stdout);
-
-    profiles_mutex.unlock();
-}
-
-// Sending Messages
-void sendBuffer(SendBuffer& buffer){
-    ENetPacket* packet = enet_packet_create(buffer.GetBuffer(), buffer.GetBufferSize(), ENET_PACKET_FLAG_RELIABLE);
-    enet_peer_send(peer, 0, packet);
-    enet_host_flush(client);
-}
-
-void Login_Guest(SendBuffer& buffer, const std::string_view& desiredName){
-    buffer.Write<Message>(Message::LOGIN_GUEST);
-    buffer.WriteString(desiredName.cbegin());
-    sendBuffer(buffer);
-}
-
-void Login_Account(SendBuffer& buffer, const std::string_view& username, const std::string_view& password){
-    // TODO: IMPLEMENT & MAKE THIS SECURE
-    buffer.Write<Message>(Message::LOGIN_ACCOUNT);
-    buffer.WriteString(username.cbegin());
-    buffer.WriteString(password.cbegin());
-    sendBuffer(buffer);
-}
-
-void room_create(SendBuffer& buffer, const char* name, int gamemode){
-    buffer.Begin(Message::ROOM_CREATE);
-    buffer.WriteString(name);
-    buffer.Write<int>(gamemode);
-    sendBuffer(buffer);
 }
 
 // Servicing connections
-int connect(){
+void connect(){
+    if (running){
+        puts("Attempted to connect while already running.");
+        return;
+    }
+
+    running = true;
+    
     client = enet_host_create (NULL, 1, 2, 0, 0);
     if (client == NULL)
     {
@@ -111,67 +135,17 @@ int connect(){
     enet_address_set_host(&address, "localhost");
     address.port = 1234;
 
-    peer = enet_host_connect(client, &address, 2, 0);
+    server = enet_host_connect(client, &address, 2, 0);
     puts("Attempting to connect\n");     
     if (enet_host_service(client, &event, 5000) > 0) {
         puts("Successfully Connected\n");        
+        std::thread netThread([](){service();});
+        netThread.detach();
     } else {
         fprintf(stderr, "Failed to connect.\n");
-        return 1;
+        running = false;
     }
-
-    SendBuffer sendBuffer;
-    sendBuffer.buffer = &buffer[0];
-
-    Login_Guest(sendBuffer, "username");
-
-    // Login_Account(sendBuffer, "username", "password");
-
-    ///Event Servicing 
-    while (true){
-        auto start = std::chrono::high_resolution_clock::now();
-
-        while (enet_host_service(client, &event, 0) > 0){
-        switch (event.type){
-            case ENET_EVENT_TYPE_RECEIVE:{
-                ReadBuffer::Set_Buffer(event.packet->data);
-                Message what = ReadBuffer::Read<Message>();
-                
-                switch (what){
-                    case Message::LOGIN_SUCCESS: {
-                        update_room_list();
-                        update_player_list();
-
-                        room_create(sendBuffer, "My lobby", 0);
-                    } break;
-
-                    case Message::LOGIN_FAIL: {
-                        std::string reason = ReadBuffer::ReadString();
-                        printf("Failed to login: %s\n", reason.c_str());
-                    } break;
-
-                    case Message::ROOM_LIST:
-                        update_room_list();
-                    break;
-                }
-                enet_packet_destroy (event.packet);
-            } break;
-        }}
-
-        std::this_thread::sleep_until(start + std::chrono::milliseconds(16));
-    }
+    
 }
 
-} // namespace Network
-
-
-
-
-int main() {
-
-    
-    Network::connect();
-
-    
-    return 0;
 }

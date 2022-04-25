@@ -1,8 +1,10 @@
 #pragma once
 
+#include <types.h>
+
 namespace Network {
 
-enum class Message {
+enum class Message : u8 {
     LOGIN_ACCOUNT,
     LOGIN_GUEST,
 

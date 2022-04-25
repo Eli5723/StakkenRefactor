@@ -5,6 +5,9 @@
 
 #include <UI/NodeTypes.h>
 
+
+#include <Networking/Client.h>
+
 // User will enter credentials, then attempt to connect
 
 bool playAsGuest = false;
@@ -12,13 +15,18 @@ bool playAsGuest = false;
 
 UI::Node* menuRoot;
 
-char* username = "";
-char* password = "";
+UI::Input* usernameInput;
+UI::HiddenInput* passwordInput;
 
 void InitiateLogin(){
     puts("Loggin' in");
-    puts(username);
-    puts(password);
+    puts(usernameInput->value);
+    puts(passwordInput->value);
+
+    std::string uname(usernameInput->value);
+    std::string pword(passwordInput->value);
+
+    Network::send_login_request(uname, pword);
 }
 
 void LoginState::init(){
@@ -28,21 +36,19 @@ void LoginState::init(){
     menuRoot = new UI::Node;
     
     // Username Input
-    UI::Node* node = new UI::Input([](char* input){
-        username = input;
+    usernameInput = new UI::Input([](char* input){
         InitiateLogin();
     });
-    menuRoot->addChild(node);
+    menuRoot->addChild(usernameInput);
 
     // Password Input
-    node = new UI::HiddenInput([](char* input){
-        password = input;
+    passwordInput = new UI::HiddenInput([](char* input){
         InitiateLogin();
     });
-    menuRoot->addChild(node);
+    menuRoot->addChild(passwordInput);
 
     // Login button
-    node = new UI::Button(200,32,[](int,int){
+    auto node = new UI::Button(200,32,[](int,int){
         InitiateLogin();
     });
     menuRoot->addChild(node);

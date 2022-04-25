@@ -1,10 +1,12 @@
 #include <Networking/Server.h>
 
+#include <Networking/Peer.h>
 #include <Networking/Room.h>
-#include <Networking/Client.h>
+
 #include <Networking/Message.h>
-#include <Networking/SendBuffer.h>
-#include <Networking/ReadBuffer.h>
+
+#include <rigtorp/SPSCQueue.h>
+#include <SFMLHelper.h>
 
 #include <enet/enet.h>
 
@@ -14,116 +16,141 @@
 #include <chrono>
 #include <thread>
 
+
 namespace Network {
 
-
 std::map<int, Room*> rooms;
-std::map<int, Client*> clients;
+std::map<int, Peer*> clients;
 
 ENetAddress address;
 ENetHost * server;
 
-inline void send_buffer(ENetPeer* peer, SendBuffer& buffer){
+rigtorp::SPSCQueue<sf::Packet> async_queue(10);
+
+void send_async(sf::Packet&& packet){
+    async_queue.push(std::move(packet));
+}
+
+void send(const sf::Packet& packet, ENetPeer* peer, const u8 channel = 0)
+{
+  ENetPacket* epacket = enet_packet_create(packet.getData(), packet.getDataSize(), ENET_PACKET_FLAG_RELIABLE);
+  enet_peer_send(peer, channel, epacket);
+}
+
+// // Rooms
+// Room* room_create(const std::string name, int creatorId, int gamemode){
+//     Room* newRoom = new Room;
+//     newRoom->info.name = name;
+//     newRoom->info.id = rand(); // TODO: Replace
+
+//     printf("ROOM | create | %s\n", newRoom->info.name.c_str());
+
+//     rooms[newRoom->info.id] = newRoom;
+//     return newRoom;
+// }
+
+// void room_remove(Room* room){
+//     rooms.erase(room->info.id);
+
+//     printf("ROOM | Remove | %s\n", room->info.name.c_str());
+
+//     delete room;
+// }
+
+// // Clients
+// Peer* client_create(const Profile& profile){
+//     Peer* newClient = new Peer;
+//     newClient->profile = profile;
+//     newClient->id = rand(); // TODO: Replace
+//     printf("Peer | Login | %s\n", newClient->profile.name.c_str());
     
-    int size = buffer.GetBufferSize();
-    ENetPacket* packet = enet_packet_create(buffer.GetBuffer(), buffer.GetBufferSize(), ENET_PACKET_FLAG_RELIABLE);
-    enet_peer_send(peer, 0, packet);
-    enet_host_flush(server);
-}
+//     clients[newClient->id] = newClient;
+//     return newClient;
+// }
 
-inline void send_buffer_all(ENetPeer* except, SendBuffer& buffer){
-    
-    int size = buffer.GetBufferSize();
-    ENetPacket* packet = enet_packet_create(buffer.GetBuffer(), buffer.GetBufferSize(), ENET_PACKET_FLAG_RELIABLE);
-    
-    for (auto& client : clients){
-        enet_peer_send(client.second->peer, 0, packet);
-    }
-    enet_host_flush(server);
-}
+// Peer* client_create_guest(const std::string_view& name){
+//     Peer* newClient = new Peer;
+//     newClient->id = rand(); // TODO: Replace
+//     // newClient->profile.id = -1;
+//     // newClient->profile.roles = -1;
+//     // newClient->profile.name = name;
 
-// Rooms
-Room* room_create(const std::string name, int creatorId, int gamemode){
-    Room* newRoom = new Room;
-    newRoom->info.name = name;
-    newRoom->info.id = rand(); // TODO: Replace
+//     printf("CLIENT | Login | %s (Guest)\n", newClient->profile.name.c_str());
 
-    printf("ROOM | create | %s\n", newRoom->info.name.c_str());
+//     clients[newClient->id] = newClient;
+//     return newClient;
+// }
 
-    rooms[newRoom->info.id] = newRoom;
-    return newRoom;
-}
+// void client_remove(Client* client){
+//     clients.erase(client->id);
 
-void room_remove(Room* room){
-    rooms.erase(room->info.id);
-
-    printf("ROOM | Remove | %s\n", room->info.name.c_str());
-
-    delete room;
-}
-
-// Clients
-Client* client_create(const Profile& profile){
-    Client* newClient = new Client;
-    newClient->profile = profile;
-    newClient->id = rand(); // TODO: Replace
-    printf("CLIENT | Login | %s\n", newClient->profile.name.c_str());
-    
-    clients[newClient->id] = newClient;
-    return newClient;
-}
-
-Client* client_create_guest(const std::string_view& name){
-    Client* newClient = new Client;
-    newClient->id = rand(); // TODO: Replace
-    newClient->profile.id = -1;
-    newClient->profile.roles = -1;
-    newClient->profile.name = name;
-
-    printf("CLIENT | Login | %s (Guest)\n", newClient->profile.name.c_str());
-
-    clients[newClient->id] = newClient;
-    return newClient;
-}
-
-void client_remove(Client* client){
-    clients.erase(client->id);
-
-    // TODO: Remove Client from room
-    printf("CLIENT | Disconnect | %s\n", client->profile.name.c_str());
-    delete client;
-}
+//     // TODO: Remove Client from room
+//     printf("CLIENT | Disconnect | %s\n", client->profile.name.c_str());
+//     delete client;
+// }
 
 // Broadcasting
-void room_list(SendBuffer& buffer){
-    buffer.Write<int>(rooms.size());
+// void room_list(SendBuffer& buffer){
+//     buffer.Write<int>(rooms.size());
 
-    for (const auto [id, room] : rooms){
-        buffer.Serialize<RoomInfo>(room->info);
+//     for (const auto [id, room] : rooms){
+//         buffer.Serialize<RoomInfo>(room->info);
+//     }
+// }
+
+// void player_list(SendBuffer& buffer){
+//     buffer.Write<int>(clients.size());
+
+//     for (const auto [id, client] : clients){
+//         buffer.Serialize<Profile>(client->profile);
+//     }
+// }
+
+
+// void send_login_reject(SendBuffer& sendBuffer, ENetPeer* peer, std::string reason){
+//     sendBuffer.Begin(Message::LOGIN_FAIL);
+//     sendBuffer.WriteString("User accounts have not been implemeted yet.");
+//     send_buffer(peer, sendBuffer);
+//     sendBuffer.Reset();
+// }
+
+// void send_login_success(SendBuffer& sendBuffer, ENetPeer* peer){
+//     sendBuffer.Begin(Message::LOGIN_SUCCESS);
+//     room_list(sendBuffer);
+//     player_list(sendBuffer);
+//     send_buffer(peer, sendBuffer);
+// }
+
+
+// Packet Handling
+void OnData(sf::Packet& packet){
+    Message m;
+
+    packet >> m;
+
+    switch (m) {
+           case Message::LOGIN_GUEST: {
+                std::string nickname;
+                packet >> nickname;
+
+                printf("Got guest login: %s\n", nickname.c_str());
+
+            } break;
+            case Message::LOGIN_ACCOUNT: {
+                std::string username;
+                std::string password;
+
+                packet >> username;
+                packet >> password;
+
+                printf("Got login: %s | %s\n", username.c_str(), password.c_str());
+            } break;
+    
+        default:
+            puts("Recieved Invalid Message from client.");
+            // TODO: Kick Client
+        break;
     }
-}
-
-void player_list(SendBuffer& buffer){
-    buffer.Write<int>(clients.size());
-
-    for (const auto [id, client] : clients){
-        buffer.Serialize<Profile>(client->profile);
-    }
-}
-
-
-void send_login_reject(SendBuffer& sendBuffer, ENetPeer* peer, std::string reason){
-    sendBuffer.Begin(Message::LOGIN_FAIL);
-    sendBuffer.WriteString("User accounts have not been implemeted yet.");
-    send_buffer(peer, sendBuffer);
-    sendBuffer.Reset();
-}
-
-void send_login_success(SendBuffer& sendBuffer, ENetPeer* peer){
-    sendBuffer.Begin(Message::LOGIN_SUCCESS);
-    room_list(sendBuffer);
-    player_list(sendBuffer);
-    send_buffer(peer, sendBuffer);
 }
 
 
@@ -139,10 +166,6 @@ void service(){
         exit (EXIT_FAILURE);
     }
 
-
-    Network::SendBuffer sendBuffer;
-    sendBuffer.buffer = new u8[2048];
-
     ENetEvent event;
     while (true){
         auto start = std::chrono::high_resolution_clock::now();
@@ -150,49 +173,19 @@ void service(){
         while (enet_host_service(server, &event, 0) > 0){
         switch (event.type){
             case ENET_EVENT_TYPE_CONNECT: {
-
-
-                // printf("Created Client for: %s (%u)\n", client->info.profile.name.c_str(), client->info.id);
             } break;
             
-            case ENET_EVENT_TYPE_RECEIVE: {
-                Client* client = (Client*)(event.peer->data);
-                
-                ReadBuffer::Set_Buffer(event.packet->data);
-                Message what = ReadBuffer::Read<Message>();
-                
-                // If the peer is not logged in and tries to send a message other than a login request, ignore them
-                // if (!event.peer->data && (what != Message::LOGIN_ACCOUNT || what != Message::LOGIN_GUEST))
-                //     return;
-
-                switch (what) {
-                    case Message::LOGIN_GUEST: {
-                        std::string guestName = ReadBuffer::ReadString();
-                        event.peer->data = client_create_guest(guestName);
-                        ((Client*)(event.peer->data))->peer = event.peer;
-
-                        send_login_success(sendBuffer, event.peer);
-                    } break;
-                    case Message::LOGIN_ACCOUNT: {
-                        std::string username = ReadBuffer::ReadString();
-                        std::string password = ReadBuffer::ReadString();
-
-                        send_login_reject(sendBuffer, event.peer, "User accounts not yet implemented.");
-                    } break;
-
-                    case Message::ROOM_CREATE: {
-                        std::string name = ReadBuffer::ReadString();
-                        int gamemode = ReadBuffer::Read<int>();
-                        room_create(name, ((Client*)event.peer->data)->id, 0);
-                    }
-                }
-
-                enet_packet_destroy (event.packet);
+            case ENET_EVENT_TYPE_RECEIVE:{
+                    puts("Got packets!");
+                    sf::Packet incoming;
+                    incoming.append(event.packet->data,event.packet->dataLength);
+                    OnData(incoming);
+                    enet_packet_destroy (event.packet);
             } break;
 
             case ENET_EVENT_TYPE_DISCONNECT: {
-                if (event.peer->data)
-                    client_remove((Client*)event.peer->data);
+                // if (event.peer->data)
+                //     // client_remove((Client*)event.peer->data);
             } break;
         }}
         auto end = std::chrono::high_resolution_clock::now();
@@ -203,30 +196,13 @@ void service(){
     }
 
     enet_host_destroy(server);
-
-
 }
 
 }
 
 
 int main() {
-    Network::room_create("Test room",0,0);
-    Network::room_create("Test room2",0,0);
-
-    // Network::ReadBuffer::Set_Buffer(sendBuffer.buffer);
-
     Network::service();
 
-    // int count = Network::ReadBuffer::Read<int>();
-    // printf("%i Room\n", count);
-    // for (int i=0; i < count; i++){
-    //     std::string name = Network::ReadBuffer::ReadString();
-    //     printf("%s\n", name.c_str());
-    // }
-
-
-    // printf("Buffer: %s\n", buff.str().c_str());
-    
     return 0;
 }
