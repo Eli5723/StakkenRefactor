@@ -1,3 +1,4 @@
+#include <Networking/Client.h>
 
 #include <Networking/Message.h>
 #include <enet/enet.h>
@@ -10,10 +11,15 @@
 
 #include <SFMLHelper.h>
 
+#include <Application.h>
+#include <States/LobbyState.h>
+
 namespace Network {
 
 bool running = false;
 
+
+// Network Members
 ENetAddress address;
 ENetHost* client;
 ENetPeer* server;
@@ -23,6 +29,10 @@ static int server_time_diff;
 static int ping_sent;
 static int ping_recieved;
 static int ping;
+
+// Network State
+PlayerInfo localPlayer;
+
 
 // Packet Sending
 rigtorp::SPSCQueue<sf::Packet> async_queue(10);
@@ -56,6 +66,15 @@ void send_guest_request(const std::string& nickname){
     async_queue.push(packet);
 }
 
+void send_room_request(const std::string& name){
+    sf::Packet packet;
+
+    packet << Message::ROOM_CREATE;
+    packet << name;
+
+    async_queue.push(packet);
+}
+
 // Packet Handling
 void OnData(sf::Packet& packet){
     Message m;
@@ -68,13 +87,35 @@ void OnData(sf::Packet& packet){
         break;
 
         case Message::LOGIN_SUCCESS:
-            puts("Login succeeded!");
+            packet >> localPlayer.id;
+            packet >> localPlayer.roles;
+            packet >> localPlayer.name;
+
+            Application::instance->state_set(new LobbyState);
+
+            printf("Successfully logged in as %s (%i | %i)\n", localPlayer.name.c_str(), localPlayer.id, localPlayer.roles);
         break;
     
+        case Message::ROOM_CREATE:
+            puts("Login succeeded!");
+        break;        
+
+        case Message::ROOM_LIST:
+            puts("Login succeeded!");
+        break;        
+
         default:
             puts("Recieved Invalid Message from server.");
         break;
     }
+}
+
+void OnLoginSuccess(sf::Packet& packet){
+    packet >> localPlayer.id;
+    packet >> localPlayer.roles;
+    packet >> localPlayer.name;
+
+    printf("Successfully Logged in as %s (%i | %i)\n");
 }
 
 void service(){
@@ -82,6 +123,8 @@ void service(){
     ENetEvent event{};
 
     while (true){
+
+        // Prepare all queued packets to be sent
         while (async_queue.front()){
             auto& packet = *(async_queue.front());
             send(packet);
@@ -89,10 +132,7 @@ void service(){
             async_queue.pop();
         }
 
-        while (enet_host_service(client, &event, 0) > 0){
-            // Send all queued packets
-
-
+        while (enet_host_service(client, &event, 250) > 0){
             // Handle incoming messages
             sf::Packet incoming;
             

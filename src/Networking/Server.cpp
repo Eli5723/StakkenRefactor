@@ -123,25 +123,62 @@ void send(const sf::Packet& packet, ENetPeer* peer, const u8 channel = 0)
 
 
 // Packet Handling
-void OnData(sf::Packet& packet){
+void OnData(ENetPeer* peer, sf::Packet& packet){
     Message m;
 
     packet >> m;
 
     switch (m) {
+
            case Message::LOGIN_GUEST: {
                 std::string nickname;
                 packet >> nickname;
 
-                printf("Got guest login: %s\n", nickname.c_str());
+                Client* client = new  Client;
 
+                client->id = -1;
+                client->name = nickname;
+                client->roles = Roles::GUEST;
+                client->socket = peer;
+                peer->data = client;
+
+                // Inform Client
+                sf::Packet pk;
+               
+                pk << Message::LOGIN_SUCCESS;
+                pk << client->id;
+                pk << client->roles;
+                pk << client->name;
+
+                send(pk, peer);
+
+                printf("Got guest login: %s\n", nickname.c_str());
             } break;
+
             case Message::LOGIN_ACCOUNT: {
                 std::string username;
                 std::string password;
 
                 packet >> username;
                 packet >> password;
+
+                Client* client = new  Client;
+                // TODO: add accounts
+                client->id = -1;
+                client->name = username;
+                client->roles = Roles::GUEST;
+                client->socket = peer;
+                peer->data = client;
+
+                // Inform Client
+                sf::Packet pk;
+               
+                pk << Message::LOGIN_SUCCESS;
+                pk << client->id;
+                pk << client->roles;
+                pk << client->name;
+
+                send(pk, peer);
 
                 printf("Got login: %s | %s\n", username.c_str(), password.c_str());
             } break;
@@ -176,16 +213,18 @@ void service(){
             } break;
             
             case ENET_EVENT_TYPE_RECEIVE:{
-                    puts("Got packets!");
-                    sf::Packet incoming;
-                    incoming.append(event.packet->data,event.packet->dataLength);
-                    OnData(incoming);
-                    enet_packet_destroy (event.packet);
+                sf::Packet incoming;
+                incoming.append(event.packet->data,event.packet->dataLength);
+                OnData(event.peer, incoming);
+                enet_packet_destroy (event.packet);
             } break;
 
             case ENET_EVENT_TYPE_DISCONNECT: {
-                // if (event.peer->data)
-                //     // client_remove((Client*)event.peer->data);
+                Client* client = (Client*)(event.peer->data);
+
+                printf("User has disconnected: %s\n", client->name.c_str());
+                delete client;
+                
             } break;
         }}
         auto end = std::chrono::high_resolution_clock::now();

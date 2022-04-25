@@ -18,15 +18,22 @@ UI::Node* menuRoot;
 UI::Input* usernameInput;
 UI::HiddenInput* passwordInput;
 
+int guestLogin = 0;
+
 void InitiateLogin(){
     puts("Loggin' in");
     puts(usernameInput->value);
     puts(passwordInput->value);
 
-    std::string uname(usernameInput->value);
-    std::string pword(passwordInput->value);
+    if (guestLogin){
+        std::string nickname(usernameInput->value);
+        Network::send_guest_request(nickname);
+    } else {
+        std::string uname(usernameInput->value);
+        std::string pword(passwordInput->value);
 
-    Network::send_login_request(uname, pword);
+        Network::send_login_request(uname, pword);
+    }
 }
 
 void LoginState::init(){
@@ -37,20 +44,27 @@ void LoginState::init(){
     
     // Username Input
     usernameInput = new UI::Input([](char* input){
-        InitiateLogin();
+
     });
     menuRoot->addChild(usernameInput);
 
     // Password Input
     passwordInput = new UI::HiddenInput([](char* input){
-        InitiateLogin();
+
     });
     menuRoot->addChild(passwordInput);
 
+    // Guest Checkcbox
+    UI::Node* node = new UI::Checkbox(glm::vec2{200,32},guestLogin, "Login as Guest");
+    menuRoot->addChild(node);
+    
     // Login button
-    auto node = new UI::Button(200,32,[](int,int){
+    node = new UI::Button(200,32,[](int,int){
         InitiateLogin();
     });
+
+
+    
     menuRoot->addChild(node);
     menuRoot->listLayout();
 

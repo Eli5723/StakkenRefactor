@@ -16,4 +16,9 @@ enum class Message : u8 {
     ROOM_JOIN,
 };
 
+enum Roles {
+    GUEST = 0,
+    USER = 1
+};
+
 }
