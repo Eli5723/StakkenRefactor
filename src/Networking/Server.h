@@ -10,6 +10,7 @@
 
 #include <Networking/Message.h>
 
+struct Room;
 struct Client {
     u32 session;
     u32 id;
@@ -17,6 +18,7 @@ struct Client {
     std::string name;
 
     ENetPeer* socket;
+    Room* room;
 
     void Encode(sf::Packet& pk){
         pk << session;

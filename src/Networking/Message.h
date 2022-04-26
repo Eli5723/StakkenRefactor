@@ -15,8 +15,16 @@ enum class Message : u8 {
     PLAYER_DISCONNECT,
     
     ROOM_LIST,
+    
     ROOM_CREATE,
-    ROOM_JOIN,
+    ROOM_CREATE_SUCCESS,
+    ROOM_CREATE_FAIL,
+
+    ROOM_CREATED,
+    ROOM_REMOVED,
+
+    ROOM_JOIN_SUCCESS,
+    ROOM_JOIN_FAIL
 };
 
 enum Roles {
