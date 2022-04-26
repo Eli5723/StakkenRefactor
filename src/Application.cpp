@@ -224,9 +224,6 @@ void Application::events(const SDL_Event& event){
             if (!event.key.repeat)
                 Input::KeyEvent(event.key);
 
-            // if (event.key.keysym.sym == SDLK_F3)
-            //     network_client.Disconnect();
-
 
             if (event.key.keysym.sym == SDLK_F5)
                 Assets::load_next_shader();

@@ -155,7 +155,6 @@ void OnRoomList(sf::Packet& packet){
     }
 
     rooms_dirty = true;
-    puts("Successfully updated room list.");
 }
 
 void OnData(sf::Packet& packet){
