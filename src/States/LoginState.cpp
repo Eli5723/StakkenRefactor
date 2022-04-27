@@ -12,7 +12,6 @@
 
 bool playAsGuest = false;
 
-
 UI::Node* menuRoot;
 
 UI::Input* usernameInput;
@@ -65,8 +64,6 @@ void LoginState::init(){
         InitiateLogin();
     });
 
-
-    
     menuRoot->addChild(node);
     menuRoot->listLayout();
 

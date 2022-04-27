@@ -74,7 +74,7 @@ namespace Network {
         async_queue.push(packet);
     }
 
-    void send_room_request(const std::string& name) {
+    void send_room_create(const std::string& name) {
         sf::Packet packet;
 
         packet << Message::ROOM_CREATE;
@@ -213,11 +213,19 @@ namespace Network {
 
 
         case Message::ROOM_CREATE:
-            puts("Login succeeded!");
+            puts("Someone created a room!");
+            OnRoomCreate(packet);
+            break;
+
+        
+        case Message::ROOM_CREATE_SUCCESS:
+            puts("Created a room successfully!");
+            OnRoomCreate(packet);
             break;
 
         case Message::ROOM_LIST:
             puts("Login succeeded!");
+            OnRoomList(packet);
             break;
 
         default:

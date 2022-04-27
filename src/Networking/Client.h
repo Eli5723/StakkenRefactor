@@ -23,7 +23,8 @@ struct PlayerInfo {
 void send_login_request(const std::string& username, const std::string& password);
 void send_guest_request(const std::string& nickname);
 
-void send_room_request(const std::string& nickname);
+void send_room_create(const std::string& nickname);
+void send_room_join(const std::string& nickname);
 
 void connect();
 

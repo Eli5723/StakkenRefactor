@@ -23,6 +23,7 @@ enum class Message : u8 {
     ROOM_CREATED,
     ROOM_REMOVED,
 
+    ROOM_JOIN,
     ROOM_JOIN_SUCCESS,
     ROOM_JOIN_FAIL
 };

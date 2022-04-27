@@ -79,9 +79,13 @@ int Application::init() {
     UI::Init(resolution);
 
     Demo* demo = Demo::Load("./demos/last_played.rep");
+    if (demo){
+    
     test = new DemoPlayer;
     test->demo = demo;
     test->restart();
+
+    }
 
     // auto a = new UI::GameViewer;
     // a->game = &test->target;

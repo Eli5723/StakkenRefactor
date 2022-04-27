@@ -225,7 +225,10 @@ namespace Network {
         } break;
 
         case Message::ROOM_LIST: {
-
+            sf::Packet pk;
+            pk << Message::ROOM_LIST;
+            EncodeRoomList(pk);
+            send(pk,peer);
         } break;
 
 
@@ -256,6 +259,7 @@ namespace Network {
             while (enet_host_service(server, &event, 0) > 0) {
                 switch (event.type) {
                 case ENET_EVENT_TYPE_CONNECT: {
+                    event.peer->data = nullptr;
                 } break;
 
                 case ENET_EVENT_TYPE_RECEIVE: {

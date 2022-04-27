@@ -142,6 +142,11 @@ void ClearFocus(){
     SDL_StopTextInput();
 }
 
+void ClearFocusNoCallback(){
+    data.focus = 0;
+    SDL_StopTextInput();
+}
+
 void MoveCapture(const SDL_MouseMotionEvent& event){
         if (data.ignoreMovement){
             data.ignoreMovement = false;
@@ -324,7 +329,7 @@ void SelectHover(){
 
 void ClearState(){
     ClearHover();
-    ClearFocus();
+    ClearFocusNoCallback();
     EndDrag();
 }
 
