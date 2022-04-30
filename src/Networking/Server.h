@@ -32,8 +32,18 @@ struct Room {
     u32 session;
     std::string name;
 
+    std::unordered_map<u32, Client*> clients;
+
     void Encode(sf::Packet& pk){
         pk << session;
         pk << name;
+    }
+
+    void AddClient(Client* client){
+        clients[client->id] = client;
+    }
+
+    void RemoveClient(Client* client){
+        clients.erase(client->id);
     }
 };

@@ -60,7 +60,7 @@ void LoginState::init(){
     menuRoot->addChild(node);
     
     // Login button
-    node = new UI::Button(200,32,[](int,int){
+    node = new UI::TextButton(glm::vec2{200,64},"Log In",[](int,int){
         InitiateLogin();
     });
 
@@ -68,6 +68,7 @@ void LoginState::init(){
     menuRoot->listLayout();
 
     UI::AddToScreen(menuRoot);
+    menuRoot->center();
 }
 
 void LoginState::update(int dt, int time){

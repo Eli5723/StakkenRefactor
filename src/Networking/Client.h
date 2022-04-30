@@ -14,10 +14,10 @@ struct RoomInfo {
 };
 
 struct PlayerInfo {
-    u32 session;
-    u32 id;
-    u32 roles;
-    std::string name;
+    u32 session; // Session ID
+    u32 id; // Account ID
+    u32 roles; // Account Roles
+    std::string name; // Account Name (Temporary Nickname?)
 };
 
 void send_login_request(const std::string& username, const std::string& password);

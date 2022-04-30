@@ -98,7 +98,7 @@ namespace Network {
         std::string nickname;
         packet >> nickname;
 
-        Client* client = new  Client;
+        Client* client = new  Client{};
 
         client->session = GenerateSessionID();
         client->id = -1;
@@ -133,7 +133,7 @@ namespace Network {
         packet >> username;
         packet >> password;
 
-        Client* client = new  Client;
+        Client* client = new  Client{};
         // TODO: add proper accounts
         client->session = GenerateSessionID();
         client->id = -1;
@@ -189,6 +189,8 @@ namespace Network {
         Message* buf = (Message*)(response.getData());
         buf[0] = Message::ROOM_CREATED;
         sendExcept(response, client->socket);
+
+        printf("Created room '%s' for '%s' %s\n", name.c_str(), client->name.c_str(), client->roles == Roles::GUEST ? "(Guest)" : "");
     }
 
     // Packet Handling
@@ -214,6 +216,9 @@ namespace Network {
         }
 
         Client* client = (Client*)peer->data;
+
+        printf("Got message from: %s (%c)\n", client->name.c_str(), ((char)m)+'a');
+        printf("Got message from: %s\n", client->name.c_str());
 
         switch (m) {
         case Message::ROOM_CREATE: {

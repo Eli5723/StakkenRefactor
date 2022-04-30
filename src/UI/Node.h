@@ -11,10 +11,30 @@ struct Node {
     Node* children = nullptr;
     Node* next = nullptr;
 
+    // Layout
     glm::vec2 position = {};
 
     glm::vec2 offset = {};
+
     glm::vec2 size = {};
+    glm::vec2 margin = {};
+    
+    glm::vec2 bounds = {};
+
+    // inline void set_size(const glm::vec2& size){
+    //     this->size = size;
+    //     this->bounds = size + margin; 
+    // }
+
+    // inline void set_margin(const glm::vec2& margin){
+
+    // }
+
+    // inline void set_bounds(const glm::vec2& size, const glm::vec2& margin){
+    //     this->size = size; 
+    //     this->margin = margin;
+    //     this->bounds = margin + size;
+    // }
 
     virtual void update(int dt){};
     virtual void render(){};

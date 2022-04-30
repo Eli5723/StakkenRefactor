@@ -25,7 +25,15 @@ enum class Message : u8 {
 
     ROOM_JOIN,
     ROOM_JOIN_SUCCESS,
-    ROOM_JOIN_FAIL
+    ROOM_JOIN_FAIL,
+
+    ROOM_OTHER_JOINED,
+    ROOM_OTHER_LEFT,
+    ROOM_SLOT_GRANT,
+    ROOM_SLOT_REMOVE,
+    ROOM_REMOVED_YOU,
+    ROOM_CHAT_MESSAGE,
+    ROOM_GAME_START,
 };
 
 enum Roles {

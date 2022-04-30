@@ -64,7 +64,7 @@ void Input::render(){
     
     if (editing){
         const glm::vec2 strSize = Renderer::StrSize(.5f, value, Assets::active_font);
-        Renderer::DrawQuad(position + glm::vec2{strSize.x,0.0f}, {2.0f,Assets::active_font->lineHeight},{1,1,1,1});
+        Renderer::DrawQuad(position + glm::vec2{strSize.x,0.0f}, {2.0f,Assets::active_font->lineHeight*.5f},{1,1,1,1});
     } 
 }
 

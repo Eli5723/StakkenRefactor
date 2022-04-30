@@ -71,7 +71,7 @@ void RoomSelectState::init(){
     UI::Input* roomNameInput = new UI::Input([](const char*){});
     roomCreateDialogue->addChild(roomNameInput);
     
-    UI::Button* b = new UI::Button(5,32,[roomNameInput](int,int){Network::send_room_create(roomNameInput->value);});
+    UI::Button* b = new UI::Button(200,32,[roomNameInput](int,int){Network::send_room_create(roomNameInput->value);});
     roomCreateDialogue->addChild(b);
     
     roomCreateDialogue->listLayout();
