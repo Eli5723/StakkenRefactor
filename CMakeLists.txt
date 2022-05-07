@@ -1,6 +1,8 @@
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake
   CACHE STRING "Vcpkg toolchain file")
 
+set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
+
 cmake_minimum_required (VERSION 3.5)
 project (Stakken)
 
@@ -20,6 +22,7 @@ find_package(sdl2-mixer CONFIG REQUIRED)
 find_package(gflags CONFIG REQUIRED)
 find_package(Vorbis CONFIG REQUIRED)
 find_package(SFML 2.5 COMPONENTS network REQUIRED)
+find_package(Freetype REQUIRED)
 
 include_directories("${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src")
 
@@ -44,7 +47,6 @@ add_executable (Stakken
     ${source_dir}/Assets/Sound.cpp
     ${source_dir}/Assets/Font.cpp
     ${source_dir}/Assets/Sounds.cpp
-
 
     ${source_dir}/Rendering/Renderer.cpp
     ${source_dir}/Rendering/Shader.cpp
@@ -130,6 +132,7 @@ target_link_libraries(Client
     unofficial::enet::enet
     gflags::gflags
     sfml-network
+    ${FREETYPE_LIBRARIES}
 )
 target_compile_definitions(Client PUBLIC IS_CLIENT)
 

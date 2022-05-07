@@ -69,7 +69,7 @@ int Application::init() {
 
     Assets::Init();
     Assets::active_shader = Assets::bgShaders.get("./resources/shaders/Ocean.frag");
-    Assets::active_font = Assets::fonts.get("./resources/fonts/NotoSans-Regular.ttf");
+    Assets::active_font = Assets::fonts.get("./resources/fonts/Futura.ttf");
     Assets::active_texture = Assets::textures.get("./resources/pieceTextures/TGF2.png");
     Sounds::loadDirectory("./resources/sounds");
 

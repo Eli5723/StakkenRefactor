@@ -30,7 +30,7 @@ struct TextButton : public Node {
 
     void render() {
         Renderer::DrawQuad(position, size, { 0,0,0,1 });
-        Renderer::QuadBox(position, size, 1.0f, {1,1,1,1});
+        // Renderer::QuadBox(position, size, 1.0f, {1,1,1,1});
         Renderer::DrawStr(position + margin, fontScale, text, Assets::active_font);
     }
 };

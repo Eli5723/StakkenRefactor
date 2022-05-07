@@ -5,8 +5,13 @@
     "dependencies": [
         {
           "name": "sdl2",
-          "features": ["x11"]
+          "features": ["x11"],
+          "platform": "linux"
         },
+        {
+            "name": "sdl2",
+            "platform": "!linux"
+          },
         {
           "name": "sdl2-mixer",
           "features": ["libvorbis"]
@@ -19,6 +24,9 @@
         },
         {
             "name": "enet"
+        },
+        {
+            "name": "msdfgen"
         },
         {
             "name": "libvorbis"
