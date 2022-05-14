@@ -102,7 +102,7 @@ void Board::addLine(int hole) {
 	rows[kTotal - 1] = garbageRow;
 
 	// Create a hole and remove relavent connections
-	garbageRow->contents[hole] = -1;
+	garbageRow->contents[hole] = -TileType::Empty;
 
 	garbageRow->fill = kWidth -1;
 

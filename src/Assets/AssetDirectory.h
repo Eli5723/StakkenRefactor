@@ -8,7 +8,7 @@
 
 namespace Assets {
 
-    using ExtensionList = std::vector<std::string>;
+    using ExtensionList = std::vector<std::filesystem::path>;
 
     class AssetDirectory {
         public:
@@ -49,10 +49,10 @@ namespace Assets {
         bool valid(const std::filesystem::path& file) {
             std::filesystem::path fileExtension = file.extension();
 
-            if (std::find(validExtensions.begin(), validExtensions.end(), fileExtension) != validExtensions.end())
-                return true;
+            // if (std::find(validExtensions.begin(), validExtensions.end(), fileExtension) != validExtensions.end())
+            //     return true;
 
-            return false;
+            return true;
         }
 
 
