@@ -3,7 +3,7 @@
 # Stakken: A Cultris 2 Spritual Succesor
 
 ## What is it?
-Stakken is a spiritual succesor to Cultris 2, a fast paced multiplayer tetris game that emphasises speed and technique over arbitrary garbage systems.
+A spiritual successor to Cultris 2, a fast-paced multiplayer Tetris game that emphasizes speed and technique over arbitrary garbage systems.
 
 ## Demo
 https://youtu.be/b0AKdH6nMkU
