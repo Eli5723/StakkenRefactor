@@ -19,7 +19,7 @@ cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.c
 cmake --build
 ```
 
-## Build Instructions (Windows)
+## Build Instructions (Windows) (Currently Broken)
 Run the following commands:
 
 ```
